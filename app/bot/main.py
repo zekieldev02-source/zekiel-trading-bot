@@ -1,16 +1,11 @@
-from telegram.ext import ApplicationBuilder, CommandHandler
-from app.bot.handlers.start import start
-from app.bot.handlers.help import help
-from app.bot.handlers.status import status
+from telegram.ext import ApplicationBuilder
 
+from app.bot.register_handlers import register_all_handlers
 from app.core.config import settings
 
 
-def run_bot():
+def run_bot() -> None:
+    """Build the Telegram application and start polling."""
     app = ApplicationBuilder().token(settings.BOT_TOKEN).build()
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help))
-    app.add_handler(CommandHandler("status", status))
-
+    register_all_handlers(app)
     app.run_polling()
