@@ -51,6 +51,7 @@ HELP_MESSAGE = (
     "*Informations :*\n"
     "/settings — Voir ta configuration\n"
     "/status — État du bot\n"
+    "/positions — Voir tes positions paper\n"
     "/help — Afficher cette aide"
 )
 

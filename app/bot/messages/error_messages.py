@@ -10,3 +10,8 @@ NOT_CONFIGURED_MESSAGE = (
 )
 
 UNEXPECTED_ERROR_MESSAGE = "⚠️ Une erreur inattendue est survenue. Réessaie plus tard."
+
+BACKEND_UNAVAILABLE_MESSAGE = (
+    "⚠️ Le service est temporairement indisponible.\n"
+    "Réessaie dans quelques instants."
+)

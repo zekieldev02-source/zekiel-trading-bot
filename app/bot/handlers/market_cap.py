@@ -9,14 +9,15 @@ from telegram.ext import (
     filters,
 )
 
-from app.bot.messages.error_messages import CANCEL_MESSAGE
 from app.bot.messages.config_messages import (
     ASK_ENTRY_MC_MESSAGE,
     ASK_EXIT_MC_MESSAGE,
     ENTRY_MC_CONFIRM_MESSAGE,
     EXIT_MC_CONFIRM_MESSAGE,
 )
+from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE, CANCEL_MESSAGE
 from app.core.enums.conversation_state import ConversationState
+from app.services.telegram import config_service
 from app.services.user_config_service import UserConfigService
 
 
@@ -26,21 +27,25 @@ from app.services.user_config_service import UserConfigService
 
 async def setentrymc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: ask for the maximum entry market cap."""
-    UserConfigService.init_user_data(context.user_data)
     await update.message.reply_text(ASK_ENTRY_MC_MESSAGE, parse_mode="Markdown")
     return ConversationState.ASK_VALUE
 
 
 async def setentrymc_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Validate and store the entry market cap."""
+    """Validate and persist the entry market cap via the backend."""
     raw = update.message.text
+    telegram_id = update.effective_user.id
 
     is_valid, value, error = UserConfigService.validate_market_cap(raw, is_entry=True)
     if not is_valid:
         await update.message.reply_text(f"⚠️ {error}\n\nRéessaie ou tape /cancel.")
         return ConversationState.ASK_VALUE
 
-    UserConfigService.set_entry_market_cap(context.user_data, value)
+    updated = await config_service.update_entry_market_cap(telegram_id, value)
+    if updated is None:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+        return ConversationHandler.END
+
     formatted = _format_mc(value)
     message = ENTRY_MC_CONFIRM_MESSAGE.format(value=formatted)
     await update.message.reply_text(message, parse_mode="Markdown")
@@ -53,21 +58,25 @@ async def setentrymc_receive(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def setexitmc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: ask for the target exit market cap."""
-    UserConfigService.init_user_data(context.user_data)
     await update.message.reply_text(ASK_EXIT_MC_MESSAGE, parse_mode="Markdown")
     return ConversationState.ASK_VALUE
 
 
 async def setexitmc_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Validate and store the exit market cap."""
+    """Validate and persist the exit market cap via the backend."""
     raw = update.message.text
+    telegram_id = update.effective_user.id
 
     is_valid, value, error = UserConfigService.validate_market_cap(raw, is_entry=False)
     if not is_valid:
         await update.message.reply_text(f"⚠️ {error}\n\nRéessaie ou tape /cancel.")
         return ConversationState.ASK_VALUE
 
-    UserConfigService.set_exit_market_cap(context.user_data, value)
+    updated = await config_service.update_exit_market_cap(telegram_id, value)
+    if updated is None:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+        return ConversationHandler.END
+
     formatted = _format_mc(value)
     message = EXIT_MC_CONFIRM_MESSAGE.format(value=formatted)
     await update.message.reply_text(message, parse_mode="Markdown")

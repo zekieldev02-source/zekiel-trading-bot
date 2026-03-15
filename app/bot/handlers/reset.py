@@ -11,6 +11,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE
 from app.bot.messages.reset_messages import (
     RESET_ALL_MESSAGE,
     RESET_AMOUNT_MESSAGE,
@@ -21,76 +22,82 @@ from app.bot.messages.reset_messages import (
     RESET_WALLET_BOT_STOPPED_MESSAGE,
     RESET_WALLET_MESSAGE,
 )
-from app.core.constants import UserDataKeys
-from app.services.user_config_service import UserConfigService
+from app.services.telegram import config_service
 
 
 async def reset_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Remove the tracked wallet. Also stops the bot if active."""
-    UserConfigService.init_user_data(context.user_data)
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_wallet(telegram_id)
 
-    if not context.user_data.get(UserDataKeys.WALLET_ADDRESS):
+    if result == "already_empty":
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="wallet"))
-        return
-
-    was_active = context.user_data.get(UserDataKeys.BOT_ACTIVE, False)
-    UserConfigService.reset_wallet(context.user_data)
-
-    if was_active:
+    elif result == "success_was_active":
         await update.message.reply_text(RESET_WALLET_BOT_STOPPED_MESSAGE, parse_mode="Markdown")
-    else:
+    elif result == "success":
         await update.message.reply_text(RESET_WALLET_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 
 
 async def reset_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Remove the trade amount. Also stops the bot if active."""
-    UserConfigService.init_user_data(context.user_data)
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_amount(telegram_id)
 
-    if not context.user_data.get(UserDataKeys.TRADE_AMOUNT):
+    if result == "already_empty":
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="montant"))
-        return
-
-    UserConfigService.reset_amount(context.user_data)
-    await update.message.reply_text(RESET_AMOUNT_MESSAGE, parse_mode="Markdown")
+    elif result == "success":
+        await update.message.reply_text(RESET_AMOUNT_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 
 
 async def reset_tp(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Remove the take-profit multiplier."""
-    UserConfigService.init_user_data(context.user_data)
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_tp(telegram_id)
 
-    if not context.user_data.get(UserDataKeys.TP_MULTIPLIER):
+    if result == "already_empty":
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="take-profit"))
-        return
-
-    UserConfigService.reset_take_profit(context.user_data)
-    await update.message.reply_text(RESET_TP_MESSAGE, parse_mode="Markdown")
+    elif result == "success":
+        await update.message.reply_text(RESET_TP_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 
 
 async def reset_entry_mc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Remove the entry market cap threshold."""
-    UserConfigService.init_user_data(context.user_data)
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_entry_mc(telegram_id)
 
-    if not context.user_data.get(UserDataKeys.ENTRY_MARKET_CAP):
+    if result == "already_empty":
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="MC d'entrée"))
-        return
-
-    UserConfigService.reset_entry_market_cap(context.user_data)
-    await update.message.reply_text(RESET_ENTRY_MC_MESSAGE, parse_mode="Markdown")
+    elif result == "success":
+        await update.message.reply_text(RESET_ENTRY_MC_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 
 
 async def reset_exit_mc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Remove the exit market cap threshold."""
-    UserConfigService.init_user_data(context.user_data)
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_exit_mc(telegram_id)
 
-    if not context.user_data.get(UserDataKeys.EXIT_MARKET_CAP):
+    if result == "already_empty":
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="MC de sortie"))
-        return
-
-    UserConfigService.reset_exit_market_cap(context.user_data)
-    await update.message.reply_text(RESET_EXIT_MC_MESSAGE, parse_mode="Markdown")
+    elif result == "success":
+        await update.message.reply_text(RESET_EXIT_MC_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 
 
 async def reset_all(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Reset all configuration to defaults."""
-    UserConfigService.reset_all(context.user_data)
-    await update.message.reply_text(RESET_ALL_MESSAGE, parse_mode="Markdown")
+    """Reset all configuration fields to defaults. Positions are preserved."""
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_all_fields(telegram_id)
+
+    if result == "success":
+        await update.message.reply_text(RESET_ALL_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)

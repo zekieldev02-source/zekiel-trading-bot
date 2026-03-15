@@ -14,14 +14,21 @@ from app.bot.messages.config_messages import (
     MODE_SET_PAPER_MESSAGE,
     MODE_USAGE_MESSAGE,
 )
+from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE
 from app.core.enums.trading_mode import TradingMode
-from app.services.user_config_service import UserConfigService
+from app.services.telegram import config_service
 
 
 async def mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Set trading mode via /mode paper or /mode live."""
-    UserConfigService.init_user_data(context.user_data)
-    current_mode = UserConfigService.get_mode(context.user_data)
+    telegram_id = update.effective_user.id
+
+    config = await config_service.get_config(telegram_id)
+    if config is None:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+        return
+
+    current_mode = config.mode
 
     # No argument → show current mode + usage
     if not context.args:
@@ -46,7 +53,11 @@ async def mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         return
 
-    UserConfigService.set_mode(context.user_data, new_mode)
+    # Changer de mode désactive le bot (règle métier)
+    updated = await config_service.update_mode(telegram_id, new_mode)
+    if updated is None:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+        return
 
     if new_mode == TradingMode.PAPER:
         await update.message.reply_text(MODE_SET_PAPER_MESSAGE, parse_mode="Markdown")

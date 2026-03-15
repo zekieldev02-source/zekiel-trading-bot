@@ -9,29 +9,32 @@ from telegram.ext import (
     filters,
 )
 
-from app.bot.messages.error_messages import CANCEL_MESSAGE
+from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE, CANCEL_MESSAGE
 from app.bot.messages.reset_messages import (
     RESET_CANCELLED_MESSAGE,
     RESET_CONFIRM_ASK_MESSAGE,
     RESET_DONE_MESSAGE,
 )
 from app.core.enums.conversation_state import ConversationState
-from app.services.user_config_service import UserConfigService
+from app.services.telegram import reset_service
 
 
 async def reset_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: ask the user to confirm the full reset."""
-    UserConfigService.init_user_data(context.user_data)
     await update.message.reply_text(RESET_CONFIRM_ASK_MESSAGE, parse_mode="Markdown")
     return ConversationState.CONFIRM
 
 
 async def reset_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle the confirmation response."""
+    """Handle the confirmation response and trigger full reset on the backend."""
     raw = update.message.text.strip().lower()
 
     if raw == "oui":
-        UserConfigService.full_reset(context.user_data)
+        telegram_id = update.effective_user.id
+        success = await reset_service.full_reset(telegram_id)
+        if not success:
+            await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+            return ConversationHandler.END
         await update.message.reply_text(RESET_DONE_MESSAGE, parse_mode="Markdown")
         return ConversationHandler.END
 

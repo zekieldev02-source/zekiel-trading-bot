@@ -8,6 +8,7 @@ from telegram.ext import Application, CommandHandler
 
 from app.bot.handlers.amount import setamount_handler
 from app.bot.handlers.control import start_bot, stop_bot
+from app.bot.handlers.positions import positions
 from app.bot.handlers.full_reset import full_reset_handler
 from app.bot.handlers.help import help_command
 from app.bot.handlers.market_cap import setentrymc_handler, setexitmc_handler
@@ -35,6 +36,7 @@ def register_all_handlers(app: Application) -> None:
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("settings", settings))
+    app.add_handler(CommandHandler("positions", positions))
 
     # --- Bot control ---
     app.add_handler(CommandHandler("startbot", start_bot))
