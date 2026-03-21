@@ -1,4 +1,4 @@
-"""Service Telegram pour l'enregistrement d'un utilisateur au démarrage."""
+"""Telegram service for registering a user on startup."""
 
 from app.client.backend import user_client
 
@@ -9,12 +9,7 @@ async def register_user(
     first_name: str | None = None,
     last_name: str | None = None,
 ) -> bool:
-    """Enregistre l'utilisateur dans le backend.
-
-    Idempotent : silencieux si l'utilisateur existe déjà (409).
-    Retourne True si l'enregistrement a réussi (201 ou 409).
-    Retourne False si le backend est indisponible.
-    """
+    """Registers the user in the backend. Idempotent: silent on 409. Returns True on 201/409."""
     return await user_client.create_user(
         telegram_id=telegram_id,
         username=username,

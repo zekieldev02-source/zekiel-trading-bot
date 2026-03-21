@@ -1,11 +1,11 @@
 """Handlers for reset commands.
 
-/resetwallet  — Supprimer le wallet suivi
-/resetamount  — Supprimer le montant d'entrée
-/resettp      — Supprimer le take-profit
-/resetentrymc — Supprimer le MC max d'entrée
-/resetexitmc  — Supprimer le MC cible de sortie
-/resetall     — Réinitialiser toute la configuration
+/resetwallet  — Remove the tracked wallet
+/resetamount  — Remove the trade amount
+/resettp      — Remove the take-profit multiplier
+/resetentrymc — Remove the max entry market cap
+/resetexitmc  — Remove the target exit market cap
+/resetall     — Reset all configuration fields
 """
 
 from telegram import Update
@@ -46,7 +46,7 @@ async def reset_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     result = await config_service.reset_amount(telegram_id)
 
     if result == "already_empty":
-        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="montant"))
+        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="trade amount"))
     elif result == "success":
         await update.message.reply_text(RESET_AMOUNT_MESSAGE, parse_mode="Markdown")
     else:
@@ -72,7 +72,7 @@ async def reset_entry_mc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     result = await config_service.reset_entry_mc(telegram_id)
 
     if result == "already_empty":
-        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="MC d'entrée"))
+        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="entry MC"))
     elif result == "success":
         await update.message.reply_text(RESET_ENTRY_MC_MESSAGE, parse_mode="Markdown")
     else:
@@ -85,7 +85,7 @@ async def reset_exit_mc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     result = await config_service.reset_exit_mc(telegram_id)
 
     if result == "already_empty":
-        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="MC de sortie"))
+        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="exit MC"))
     elif result == "success":
         await update.message.reply_text(RESET_EXIT_MC_MESSAGE, parse_mode="Markdown")
     else:

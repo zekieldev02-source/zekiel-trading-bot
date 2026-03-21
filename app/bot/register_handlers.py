@@ -4,10 +4,17 @@ All command handlers and conversation handlers are registered here.
 main.py only builds the Application and calls this function.
 """
 
-from telegram.ext import Application, CommandHandler
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 
 from app.bot.handlers.amount import setamount_handler
 from app.bot.handlers.control import start_bot, stop_bot
+from app.bot.handlers.position_callbacks import close_position_callback_handler
+from app.bot.handlers.action_handler import action_handler
+from app.bot.handlers.menu_handler import menu_handler
+from app.bot.handlers.trade_callbacks import (
+    copy_trade_callback_handler,
+    view_positions_callback_handler,
+)
 from app.bot.handlers.positions import positions
 from app.bot.handlers.full_reset import full_reset_handler
 from app.bot.handlers.help import help_command
@@ -49,6 +56,13 @@ def register_all_handlers(app: Application) -> None:
     app.add_handler(setentrymc_handler)
     app.add_handler(setexitmc_handler)
     app.add_handler(CommandHandler("mode", mode))
+
+    # --- Inline callbacks ---
+    app.add_handler(action_handler)
+    app.add_handler(menu_handler)
+    app.add_handler(close_position_callback_handler)
+    app.add_handler(copy_trade_callback_handler)
+    app.add_handler(view_positions_callback_handler)
 
     # --- Reset commands ---
     app.add_handler(CommandHandler("resetwallet", reset_wallet))

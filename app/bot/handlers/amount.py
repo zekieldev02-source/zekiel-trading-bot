@@ -16,7 +16,7 @@ from app.bot.messages.config_messages import (
 from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE, CANCEL_MESSAGE
 from app.core.enums.conversation_state import ConversationState
 from app.services.telegram import config_service
-from app.services.user_config_service import UserConfigService
+from app.services.validators.input_validator import validate_amount
 
 
 async def setamount_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -30,9 +30,9 @@ async def setamount_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     raw = update.message.text
     telegram_id = update.effective_user.id
 
-    is_valid, amount, error = UserConfigService.validate_amount(raw)
+    is_valid, amount, error = validate_amount(raw)
     if not is_valid:
-        await update.message.reply_text(f"⚠️ {error}\n\nRéessaie ou tape /cancel.")
+        await update.message.reply_text(f"⚠️ {error}\n\nTry again or type /cancel.")
         return ConversationState.ASK_VALUE
 
     updated = await config_service.update_trade_amount(telegram_id, amount)

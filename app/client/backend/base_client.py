@@ -1,7 +1,7 @@
-"""Client HTTP partagé entre tous les modules backend.
+"""Shared HTTP client for all backend modules.
 
-Un seul httpx.AsyncClient est instancié pour toute l'application,
-ce qui permet la réutilisation du pool de connexions.
+A single httpx.AsyncClient is instantiated for the whole application,
+enabling connection-pool reuse.
 """
 
 import httpx

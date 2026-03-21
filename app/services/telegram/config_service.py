@@ -1,62 +1,57 @@
-"""Service Telegram pour la gestion de la configuration de trading.
+"""Telegram service for managing the trading configuration.
 
-Chaque méthode d'action retourne un code résultat (str) que le handler
-mappe vers le message Telegram approprié. Le service ne connaît pas les messages UI.
+Each action method returns a result code (str) that the handler maps to the
+appropriate Telegram message. This service has no knowledge of UI messages.
 
-Codes communs :
-    "success"        — opération réussie
-    "backend_error"  — backend indisponible ou erreur réseau
-    "already_empty"  — le champ était déjà vide, rien à faire
+Common codes:
+    "success"        — operation succeeded
+    "backend_error"  — backend unavailable or network error
+    "already_empty"  — field was already empty, nothing to do
 """
 
 from app.client.backend import config_client
+from app.client.listener import listener_client
 from app.core.enums.trading_mode import TradingMode
 from app.schemas.user_config import UserConfig
 
 
 async def get_config(telegram_id: int) -> UserConfig | None:
-    """Récupère la configuration courante de l'utilisateur.
-
-    Retourne None si le backend est indisponible.
-    """
+    """Returns None if the backend is unavailable."""
     return await config_client.get_config(telegram_id)
 
 
-# ------------------------------------------------------------------ #
-#  Mises à jour de configuration
-# ------------------------------------------------------------------ #
+async def update_wallet(
+    telegram_id: int,
+    address: str,
+) -> tuple[UserConfig | None, str | None]:
+    """Updates the tracked wallet address.
 
-async def update_wallet(telegram_id: int, address: str) -> UserConfig | None:
-    """Met à jour l'adresse du wallet suivi."""
-    return await config_client.update_config(telegram_id, wallet_address=address)
+    Returns:
+        (UserConfig, None)  : success.
+        (None, message)     : invalid wallet — error message to show the user.
+        (None, None)        : backend unavailable.
+    """
+    return await config_client.update_wallet_address(telegram_id, address)
 
 
 async def update_trade_amount(telegram_id: int, amount: float) -> UserConfig | None:
-    """Met à jour le montant d'entrée par trade."""
     return await config_client.update_config(telegram_id, trade_amount=amount)
 
 
 async def update_tp_multiplier(telegram_id: int, multiplier: float) -> UserConfig | None:
-    """Met à jour le multiplicateur de take-profit."""
     return await config_client.update_config(telegram_id, tp_multiplier=multiplier)
 
 
 async def update_entry_market_cap(telegram_id: int, value: float) -> UserConfig | None:
-    """Met à jour le market cap maximum d'entrée."""
     return await config_client.update_config(telegram_id, entry_market_cap=value)
 
 
 async def update_exit_market_cap(telegram_id: int, value: float) -> UserConfig | None:
-    """Met à jour le market cap cible de sortie."""
     return await config_client.update_config(telegram_id, exit_market_cap=value)
 
 
 async def update_mode(telegram_id: int, mode: TradingMode) -> UserConfig | None:
-    """Change le mode de trading (paper / live).
-
-    Désactive systématiquement le bot lors du changement de mode
-    pour éviter des trades involontaires.
-    """
+    """Changes the trading mode (paper / live). Always deactivates the bot to prevent unintended trades."""
     return await config_client.update_config(
         telegram_id,
         mode=mode.value,
@@ -65,19 +60,15 @@ async def update_mode(telegram_id: int, mode: TradingMode) -> UserConfig | None:
     )
 
 
-# ------------------------------------------------------------------ #
-#  Contrôle du bot
-# ------------------------------------------------------------------ #
-
 async def activate_bot(telegram_id: int) -> str:
-    """Valide les prérequis et active le bot de trading.
+    """Validates prerequisites and activates the trading bot.
 
-    Codes retournés :
-        "success"         — bot activé
-        "already_active"  — bot déjà en cours d'exécution
-        "missing_wallet"  — wallet non configuré
-        "missing_amount"  — montant non configuré
-        "backend_error"   — backend indisponible
+    Return codes:
+        "success"         — bot activated
+        "already_active"  — bot already running
+        "missing_wallet"  — wallet not configured
+        "missing_amount"  — trade amount not configured
+        "backend_error"   — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -90,16 +81,20 @@ async def activate_bot(telegram_id: int) -> str:
         return "missing_amount"
 
     updated = await config_client.update_config(telegram_id, bot_active=True, bot_status="active")
-    return "success" if updated is not None else "backend_error"
+    if updated is None:
+        return "backend_error"
+
+    await listener_client.trigger_subscribe()
+    return "success"
 
 
 async def deactivate_bot(telegram_id: int) -> str:
-    """Désactive le bot de trading.
+    """Deactivates the trading bot.
 
-    Codes retournés :
-        "success"           — bot arrêté
-        "already_inactive"  — bot déjà arrêté
-        "backend_error"     — backend indisponible
+    Return codes:
+        "success"           — bot stopped
+        "already_inactive"  — bot already inactive
+        "backend_error"     — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -107,22 +102,26 @@ async def deactivate_bot(telegram_id: int) -> str:
     if not config.bot_active:
         return "already_inactive"
 
+    wallet_address = config.wallet_address
+
     updated = await config_client.update_config(telegram_id, bot_active=False, bot_status="idle")
-    return "success" if updated is not None else "backend_error"
+    if updated is None:
+        return "backend_error"
 
+    if wallet_address:
+        await listener_client.trigger_unsubscribe(wallet_address, telegram_id)
 
-# ------------------------------------------------------------------ #
-#  Réinitialisations individuelles
-# ------------------------------------------------------------------ #
+    return "success"
+
 
 async def reset_wallet(telegram_id: int) -> str:
-    """Supprime le wallet et désactive le bot.
+    """Clears the wallet and deactivates the bot.
 
-    Codes retournés :
-        "success"            — wallet supprimé
-        "success_was_active" — wallet supprimé, bot arrêté au passage
-        "already_empty"      — aucun wallet configuré
-        "backend_error"      — backend indisponible
+    Return codes:
+        "success"            — wallet cleared
+        "success_was_active" — wallet cleared, bot also stopped
+        "already_empty"      — no wallet configured
+        "backend_error"      — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -143,12 +142,12 @@ async def reset_wallet(telegram_id: int) -> str:
 
 
 async def reset_amount(telegram_id: int) -> str:
-    """Supprime le montant de trade et désactive le bot.
+    """Clears the trade amount and deactivates the bot.
 
-    Codes retournés :
-        "success"        — montant supprimé
-        "already_empty"  — aucun montant configuré
-        "backend_error"  — backend indisponible
+    Return codes:
+        "success"        — amount cleared
+        "already_empty"  — no amount configured
+        "backend_error"  — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -166,12 +165,12 @@ async def reset_amount(telegram_id: int) -> str:
 
 
 async def reset_tp(telegram_id: int) -> str:
-    """Supprime le multiplicateur de take-profit.
+    """Clears the take-profit multiplier.
 
-    Codes retournés :
-        "success"        — TP supprimé
-        "already_empty"  — aucun TP configuré
-        "backend_error"  — backend indisponible
+    Return codes:
+        "success"        — TP cleared
+        "already_empty"  — no TP configured
+        "backend_error"  — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -184,12 +183,12 @@ async def reset_tp(telegram_id: int) -> str:
 
 
 async def reset_entry_mc(telegram_id: int) -> str:
-    """Supprime le market cap d'entrée.
+    """Clears the entry market cap.
 
-    Codes retournés :
-        "success"        — MC d'entrée supprimé
-        "already_empty"  — non configuré
-        "backend_error"  — backend indisponible
+    Return codes:
+        "success"        — entry MC cleared
+        "already_empty"  — not configured
+        "backend_error"  — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -202,12 +201,12 @@ async def reset_entry_mc(telegram_id: int) -> str:
 
 
 async def reset_exit_mc(telegram_id: int) -> str:
-    """Supprime le market cap de sortie.
+    """Clears the exit market cap.
 
-    Codes retournés :
-        "success"        — MC de sortie supprimé
-        "already_empty"  — non configuré
-        "backend_error"  — backend indisponible
+    Return codes:
+        "success"        — exit MC cleared
+        "already_empty"  — not configured
+        "backend_error"  — backend unavailable
     """
     config = await config_client.get_config(telegram_id)
     if config is None:
@@ -220,12 +219,11 @@ async def reset_exit_mc(telegram_id: int) -> str:
 
 
 async def reset_all_fields(telegram_id: int) -> str:
-    """Remet tous les champs de config à None et désactive le bot.
-    Les positions paper sont conservées.
+    """Resets all config fields to None and deactivates the bot. Paper positions are kept.
 
-    Codes retournés :
-        "success"       — config remise à zéro
-        "backend_error" — backend indisponible
+    Return codes:
+        "success"       — config reset
+        "backend_error" — backend unavailable
     """
     updated = await config_client.update_config(
         telegram_id,

@@ -1,11 +1,9 @@
-"""Position lifecycle status for paper trading."""
-
+# Source of truth: backend (app/core/enums/position_status.py).
+# This local copy is used for display only (Telegram UI labels).
 from enum import Enum
 
 
 class PositionStatus(Enum):
-    """Tracks whether a paper position is active, closed at profit, or cancelled."""
-
     OPEN = "open"
     CLOSED = "closed"
     CANCELLED = "cancelled"
@@ -13,8 +11,8 @@ class PositionStatus(Enum):
     @property
     def display(self) -> str:
         labels = {
-            PositionStatus.OPEN: "🟢 Ouverte",
-            PositionStatus.CLOSED: "🔴 Fermée",
-            PositionStatus.CANCELLED: "⚪ Annulée",
+            PositionStatus.OPEN: "🟢 Open",
+            PositionStatus.CLOSED: "🔴 Closed",
+            PositionStatus.CANCELLED: "⚪ Cancelled",
         }
         return labels[self]

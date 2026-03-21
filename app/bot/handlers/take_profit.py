@@ -13,7 +13,7 @@ from app.bot.messages.config_messages import ASK_TP_MESSAGE, TP_CONFIRM_MESSAGE
 from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE, CANCEL_MESSAGE
 from app.core.enums.conversation_state import ConversationState
 from app.services.telegram import config_service
-from app.services.user_config_service import UserConfigService
+from app.services.validators.input_validator import validate_tp_multiplier
 
 
 async def settp_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -27,9 +27,9 @@ async def settp_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     raw = update.message.text
     telegram_id = update.effective_user.id
 
-    is_valid, multiplier, error = UserConfigService.validate_tp_multiplier(raw)
+    is_valid, multiplier, error = validate_tp_multiplier(raw)
     if not is_valid:
-        await update.message.reply_text(f"⚠️ {error}\n\nRéessaie ou tape /cancel.")
+        await update.message.reply_text(f"⚠️ {error}\n\nTry again or type /cancel.")
         return ConversationState.ASK_VALUE
 
     updated = await config_service.update_tp_multiplier(telegram_id, multiplier)

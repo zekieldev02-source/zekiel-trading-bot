@@ -17,7 +17,7 @@ from app.bot.messages.config_messages import (
 from app.bot.messages.error_messages import BACKEND_UNAVAILABLE_MESSAGE, CANCEL_MESSAGE
 from app.core.enums.conversation_state import ConversationState
 from app.services.telegram import config_service
-from app.services.user_config_service import UserConfigService
+from app.services.validators.input_validator import validate_wallet
 
 
 async def setwallet_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -31,16 +31,23 @@ async def setwallet_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     address = update.message.text.strip()
     telegram_id = update.effective_user.id
 
-    is_valid, error = UserConfigService.validate_wallet(address)
+    is_valid, error = validate_wallet(address)
     if not is_valid:
-        await update.message.reply_text(f"⚠️ {error}\n\nRéessaie ou tape /cancel.")
+        await update.message.reply_text(f"⚠️ {error}\n\nTry again or type /cancel.")
         return ConversationState.ASK_VALUE
 
-    # Récupère l'ancien wallet pour adapter le message de confirmation
+    # Fetch old wallet to adapt the confirmation message
     current_config = await config_service.get_config(telegram_id)
     old_wallet = current_config.wallet_address if current_config else None
 
-    updated = await config_service.update_wallet(telegram_id, address)
+    updated, feedback = await config_service.update_wallet(telegram_id, address)
+
+    if updated is None and feedback:
+        await update.message.reply_text(
+            f"⚠️ {feedback}\n\nTry again or type /cancel."
+        )
+        return ConversationState.ASK_VALUE
+
     if updated is None:
         await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
         return ConversationHandler.END
@@ -49,6 +56,9 @@ async def setwallet_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         message = WALLET_UPDATED_MESSAGE.format(address=address)
     else:
         message = WALLET_CONFIRM_MESSAGE.format(address=address)
+
+    if feedback:
+        message += f"\n\n⚠️ {feedback}"
 
     await update.message.reply_text(message, parse_mode="Markdown")
     return ConversationHandler.END

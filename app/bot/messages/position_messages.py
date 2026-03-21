@@ -1,38 +1,37 @@
-"""Messages pour la commande /positions."""
+"""Messages for the /positions command."""
 
 from decimal import Decimal, InvalidOperation
 
 from telegram.helpers import escape_markdown
 
-# Le backend renvoie toutes les positions fermées triées.
-# C'est le bot qui décide d'en limiter l'affichage — pas le backend.
+# The backend returns all closed positions sorted. Display limiting is done client-side.
 MAX_CLOSED_DISPLAY = 3
 
 
 NO_POSITIONS_MESSAGE = (
-    "📊 *Positions paper*\n"
+    "📊 *Paper positions*\n"
     "\n"
-    "Tu n'as encore aucune position paper.\n"
-    "Le bot en créera automatiquement quand un signal sera détecté."
+    "You have no paper positions yet.\n"
+    "The bot will create them automatically when a signal is detected."
 )
 
 
 def get_positions_message(data: dict) -> str:
-    """Construit le message Telegram depuis la réponse /positions/summary.
+    """Builds the Telegram message from the /positions/summary response.
 
-    Gère proprement tous les cas :
-    - positions ouvertes sans fermées
-    - positions fermées sans ouvertes
-    - mix des deux
+    Handles all cases cleanly:
+    - open positions only
+    - closed positions only
+    - mix of both
 
-    Les valeurs dynamiques (token_symbol, token_address, close_reason)
-    sont systématiquement échappées pour éviter tout bug Markdown.
+    Dynamic values (token_symbol, token_address, close_reason) are always
+    escaped to prevent Markdown rendering bugs.
 
     Args:
-        data: dict contenant open_positions, closed_positions et summary.
+        data: dict containing open_positions, closed_positions and summary.
 
     Returns:
-        Message formaté en Markdown v1 pour Telegram.
+        Message formatted in Markdown v1 for Telegram.
     """
     summary = data.get("summary", {})
     open_positions: list[dict] = data.get("open_positions", [])
@@ -41,49 +40,47 @@ def get_positions_message(data: dict) -> str:
     open_count: int = summary.get("open_count", 0)
     closed_count: int = summary.get("closed_count", 0)
 
-    lines = ["📊 *Positions paper*", ""]
+    lines = ["📊 *Paper positions*", ""]
 
-    # ---- Résumé global ----
-    lines.append(f"🟢 Ouvertes : {open_count}")
-    lines.append(f"🔴 Fermées : {closed_count}")
+    lines.append(f"🟢 Open: {open_count}")
+    lines.append(f"🔴 Closed: {closed_count}")
 
     if closed_count > 0:
         total_pnl = _to_decimal(summary.get("total_pnl_absolute", 0))
         avg_pnl = _to_decimal(summary.get("average_pnl_percent", 0))
         pnl_sign = "+" if total_pnl >= 0 else ""
         avg_sign = "+" if avg_pnl >= 0 else ""
-        lines.append(f"💰 PnL total : {pnl_sign}{total_pnl:.4f} SOL")
-        lines.append(f"📈 PnL moyen : {avg_sign}{avg_pnl:.2f}%")
+        lines.append(f"💰 Total PnL: {pnl_sign}{total_pnl:.4f} SOL")
+        lines.append(f"📈 Avg PnL: {avg_sign}{avg_pnl:.2f}%")
 
-    # ---- Positions ouvertes ----
     lines.append("")
     if open_positions:
-        lines.append("*Positions ouvertes :*")
+        lines.append("*Open positions:*")
         for i, pos in enumerate(open_positions, start=1):
             symbol = _safe_md(pos.get("token_symbol") or pos.get("token_address", "?"))
+            addr = pos.get("token_address") or ""
             lines.append("")
             lines.append(f"{i}. *{symbol}*")
-            lines.append(f"   Entrée : `{_fmt_price(pos.get('entry_price'))}` SOL")
-            lines.append(f"   Montant : `{_fmt_amount(pos.get('amount'))}` SOL")
+            if addr:
+                lines.append(f"   Address: `{addr}`")
+            lines.append(f"   Entry: `{_fmt_price(pos.get('entry_price'))}` SOL")
+            lines.append(f"   Amount: `{_fmt_amount(pos.get('amount'))}` SOL")
 
             tp = pos.get("take_profit_multiplier")
             if tp:
-                lines.append(f"   TP : x{_to_decimal(tp):.2f}")
+                lines.append(f"   TP: x{_to_decimal(tp):.2f}")
 
             mc = pos.get("entry_market_cap")
             if mc:
-                lines.append(f"   MC entrée : {_fmt_market_cap(_to_decimal(mc))}")
+                lines.append(f"   Entry MC: {_fmt_market_cap(_to_decimal(mc))}")
     else:
-        # Il y a forcément des positions fermées (le handler garantit qu'au moins l'un des deux > 0)
-        lines.append("_Aucune position ouverte actuellement._")
+        # There must be closed positions (handler guarantees at least one count > 0)
+        lines.append("_No open positions at the moment._")
 
-    # ---- Dernières positions fermées ----
-    # La limite MAX_CLOSED_DISPLAY est appliquée ici côté bot.
-    # Le backend renvoie tout — cette décision d'affichage reste côté UI.
     if closed_positions:
         recent = closed_positions[:MAX_CLOSED_DISPLAY]
         lines.append("")
-        lines.append(f"*Dernières positions fermées ({len(recent)}/{closed_count}) :*")
+        lines.append(f"*Last closed positions ({len(recent)}/{closed_count}):*")
         for pos in recent:
             symbol = _safe_md(pos.get("token_symbol") or pos.get("token_address", "?"))
             reason = _safe_md(_fmt_close_reason(pos.get("close_reason")))
@@ -100,31 +97,63 @@ def get_positions_message(data: dict) -> str:
             lines.append(f"  • *{symbol}*{pnl_str} _{reason}_")
     elif open_positions:
         lines.append("")
-        lines.append("_Aucune position fermée pour le moment._")
+        lines.append("_No closed positions yet._")
 
     return "\n".join(lines)
 
 
-# ------------------------------------------------------------------ #
-#  Helpers
-# ------------------------------------------------------------------ #
+def get_close_confirmation_message(position_data: dict) -> str:
+    """Builds the confirmation message after a manual position close.
+
+    Args:
+        position_data: dict returned by the backend after closing (ClosePositionResponse).
+
+    Returns:
+        Message formatted in Markdown v1 for Telegram.
+    """
+    addr = str(position_data.get("token_address") or "")
+    symbol = _safe_md(position_data.get("token_symbol") or _short_addr(addr) or "?")
+    lines = [
+        "🔴 *Position closed*",
+        "",
+        f"Token: *{symbol}*",
+    ]
+    if addr:
+        lines.append(f"Address: `{addr}`")
+    lines.append("Reason: manual close")
+
+    pnl_abs = position_data.get("pnl_absolute")
+    pnl_pct = position_data.get("pnl_percent")
+
+    if pnl_abs is not None and pnl_pct is not None:
+        pnl_d = _to_decimal(pnl_abs)
+        pct_d = _to_decimal(pnl_pct)
+        sign = "+" if pnl_d >= 0 else ""
+        lines.append(f"PnL: `{sign}{pct_d:.2f}%`")
+        lines.append(f"Result: `{sign}{pnl_d:.4f} SOL`")
+
+    return "\n".join(lines)
+
+
+def _short_addr(address: str) -> str:
+    """Returns a short address for display: `So11...1112`."""
+    if len(address) <= 10:
+        return address
+    return f"{address[:4]}...{address[-4:]}"
 
 
 def _safe_md(text: str) -> str:
-    """Échappe les caractères spéciaux Markdown v1 pour Telegram (*_`[).
+    """Escapes Markdown v1 special characters for Telegram (*_`[).
 
-    À appliquer sur toutes les valeurs dynamiques injectées dans le message :
+    Must be applied to all dynamic values injected into messages:
     token_symbol, token_address, close_reason, etc.
     """
     return escape_markdown(str(text), version=1)
 
 
 def _to_decimal(value) -> Decimal:
-    """Convertit toute valeur numérique (float, str, int) en Decimal.
-
-    Passage par str() pour éviter les imprécisions d'un float intermédiaire.
-    Par exemple : Decimal(str(0.1 + 0.2)) == Decimal("0.3"), alors que
-    Decimal(0.1 + 0.2) reflète l'imprécision binaire.
+    """Converts any numeric value (float, str, int) to Decimal via str() to avoid
+    float precision issues. e.g. Decimal(str(0.1 + 0.2)) == Decimal("0.3").
     """
     try:
         return Decimal(str(value))
@@ -133,10 +162,10 @@ def _to_decimal(value) -> Decimal:
 
 
 def _fmt_price(value) -> str:
-    """Formate un prix de token avec une précision adaptée à sa magnitude.
+    """Formats a token price with precision adapted to its magnitude.
 
-    Utilise Decimal pour éviter les imprécisions float sur les très petits prix
-    (ex : tokens Solana à 0.000000001 SOL).
+    Uses Decimal to avoid float imprecision on very small prices
+    (e.g. Solana tokens at 0.000000001 SOL).
     """
     if value is None:
         return "?"
@@ -166,10 +195,10 @@ def _fmt_market_cap(value: Decimal) -> str:
 
 def _fmt_close_reason(reason: str | None) -> str:
     mapping = {
-        "tp_hit": "TP atteint",
-        "exit_mc_hit": "MC cible atteinte",
-        "manual_close": "fermeture manuelle",
-        "bot_stop": "bot arrêté",
-        "cancelled": "annulée",
+        "tp_hit": "TP hit",
+        "exit_mc_hit": "exit MC reached",
+        "manual_close": "manual close",
+        "bot_stop": "bot stopped",
+        "cancelled": "cancelled",
     }
-    return mapping.get(reason or "", reason or "fermée")
+    return mapping.get(reason or "", reason or "closed")

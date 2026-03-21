@@ -1,4 +1,4 @@
-"""Client HTTP pour les opérations sur la configuration et les resets."""
+"""HTTP client for configuration and reset operations."""
 
 import httpx
 
@@ -8,10 +8,7 @@ from app.schemas.user_config import UserConfig
 
 
 async def get_config(telegram_id: int) -> UserConfig | None:
-    """Récupère la configuration de trading et la convertit en UserConfig.
-
-    Retourne None si introuvable ou en cas d'erreur réseau.
-    """
+    """Returns None if not found or on network error."""
     try:
         resp = await http_client.get(f"/users/{telegram_id}/config")
         if resp.status_code != 200:
@@ -22,12 +19,7 @@ async def get_config(telegram_id: int) -> UserConfig | None:
 
 
 async def update_config(telegram_id: int, **fields) -> UserConfig | None:
-    """Met à jour les champs fournis dans la configuration.
-
-    Seuls les champs passés en kwargs sont envoyés au backend.
-    Les champs passés à None effacent la valeur en base.
-    Retourne None en cas d'erreur réseau ou de réponse non-200.
-    """
+    """Only the provided kwargs are sent to the backend. None values clear the field in the DB."""
     try:
         resp = await http_client.put(
             f"/users/{telegram_id}/config",
@@ -40,11 +32,36 @@ async def update_config(telegram_id: int, **fields) -> UserConfig | None:
         return None
 
 
-async def reset_user(telegram_id: int) -> bool:
-    """Déclenche un reset complet : config par défaut + positions supprimées + log.
+async def update_wallet_address(
+    telegram_id: int,
+    address: str,
+) -> tuple[UserConfig | None, str | None]:
+    """Updates the tracked wallet address with fine-grained validation error handling.
 
-    Retourne True si le reset a réussi.
+    Returns:
+        (UserConfig, None)  : success.
+        (None, message)     : invalid wallet (400) — backend error message.
+        (None, None)        : backend unavailable or unexpected error.
     """
+    try:
+        resp = await http_client.put(
+            f"/users/{telegram_id}/config",
+            json={"wallet_address": address},
+        )
+        if resp.status_code == 200:
+            body = resp.json()
+            config = _map_to_user_config(telegram_id, body.get("data", {}))
+            warning: str | None = body.get("message")
+            return config, warning
+        if resp.status_code == 400:
+            detail: str = resp.json().get("detail", "Invalid Solana wallet.")
+            return None, detail
+        return None, None
+    except httpx.RequestError:
+        return None, None
+
+
+async def reset_user(telegram_id: int) -> bool:
     try:
         resp = await http_client.post(f"/users/{telegram_id}/reset")
         return resp.status_code == 200
@@ -53,7 +70,6 @@ async def reset_user(telegram_id: int) -> bool:
 
 
 def _map_to_user_config(telegram_id: int, data: dict) -> UserConfig:
-    """Convertit la réponse brute de l'API en UserConfig Pydantic."""
     return UserConfig(
         telegram_id=telegram_id,
         wallet_address=data.get("wallet_address"),

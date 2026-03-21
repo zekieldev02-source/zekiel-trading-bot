@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     ENV: str = "development"
     BACKEND_URL: str = "http://localhost:8000"
+    LISTENER_URL: str = "http://localhost:8001"
 
 
 settings = Settings()

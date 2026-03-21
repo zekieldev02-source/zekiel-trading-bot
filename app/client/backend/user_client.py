@@ -1,4 +1,4 @@
-"""Client HTTP pour les opérations sur les utilisateurs (POST/GET/DELETE /users)."""
+"""HTTP client for user operations (POST/GET/DELETE /users)."""
 
 import httpx
 
@@ -11,11 +11,7 @@ async def create_user(
     first_name: str | None = None,
     last_name: str | None = None,
 ) -> bool:
-    """Crée un utilisateur en base.
-
-    Retourne True si créé (201) ou déjà existant (409).
-    Retourne False en cas d'erreur réseau.
-    """
+    """Returns True on 201 (created) or 409 (already exists). False on network error."""
     try:
         resp = await http_client.post(
             "/users",
@@ -32,10 +28,6 @@ async def create_user(
 
 
 async def get_user(telegram_id: int) -> dict | None:
-    """Récupère les données brutes d'un utilisateur.
-
-    Retourne None si introuvable ou en cas d'erreur réseau.
-    """
     try:
         resp = await http_client.get(f"/users/{telegram_id}")
         if resp.status_code != 200:
@@ -46,10 +38,6 @@ async def get_user(telegram_id: int) -> dict | None:
 
 
 async def delete_user(telegram_id: int) -> bool:
-    """Supprime un utilisateur et toutes ses données liées.
-
-    Retourne True si la suppression a réussi.
-    """
     try:
         resp = await http_client.delete(f"/users/{telegram_id}")
         return resp.status_code == 200

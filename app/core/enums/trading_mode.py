@@ -1,11 +1,9 @@
-"""Trading mode enum: paper (simulated) or live (real transactions)."""
-
+# Source of truth: backend (app/core/enums/trading_mode.py).
+# This local copy is used for display only (Telegram UI labels).
 from enum import Enum
 
 
 class TradingMode(Enum):
-    """Determines whether trades are simulated or executed on-chain."""
-
     PAPER = "paper"
     LIVE = "live"
 
