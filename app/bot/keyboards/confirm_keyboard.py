@@ -13,7 +13,7 @@ def build_confirm_keyboard(action_execute: str) -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("✅ Confirm", callback_data=action_execute),
-            InlineKeyboardButton("❌ Cancel", callback_data=CANCEL),
+            InlineKeyboardButton("✅ Confirmer", callback_data=action_execute),
+            InlineKeyboardButton("❌ Annuler", callback_data=CANCEL),
         ]
     ])

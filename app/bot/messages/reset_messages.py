@@ -1,48 +1,48 @@
 """Reset messages: individual resets (/resetwallet…) + full reset (/reset)."""
 
-RESET_WALLET_MESSAGE = "🗑 *Wallet removed.*\nUse /setwallet to configure a new one."
+RESET_WALLET_MESSAGE = "🗑 *Wallet supprimé.*\nUtilise /setwallet pour en configurer un nouveau."
 
 RESET_WALLET_BOT_STOPPED_MESSAGE = (
-    "🗑 *Wallet removed.*\n"
-    "⚠️ Copy trading has been disabled (wallet required).\n"
+    "🗑 *Wallet supprimé.*\n"
+    "⚠️ Le copy trading a été désactivé (wallet requis).\n"
     "\n"
-    "Use /setwallet to configure a new one."
+    "Utilise /setwallet pour en configurer un nouveau."
 )
 
-RESET_AMOUNT_MESSAGE = "🗑 *Trade amount removed.*\nUse /setamount to set a new one."
+RESET_AMOUNT_MESSAGE = "🗑 *Montant supprimé.*\nUtilise /setamount pour en définir un nouveau."
 
-RESET_TP_MESSAGE = "🗑 *Take-profit removed.*\nUse /settp to set a new one."
+RESET_TP_MESSAGE = "🗑 *Take-profit supprimé.*\nUtilise /settp pour en définir un nouveau."
 
-RESET_ENTRY_MC_MESSAGE = "🗑 *Max entry MC removed.*\nUse /setentrymc to set a new one."
+RESET_ENTRY_MC_MESSAGE = "🗑 *MC d'entrée supprimée.*\nUtilise /setentrymc pour en définir une nouvelle."
 
-RESET_EXIT_MC_MESSAGE = "🗑 *Target exit MC removed.*\nUse /setexitmc to set a new one."
+RESET_EXIT_MC_MESSAGE = "🗑 *MC de sortie supprimée.*\nUtilise /setexitmc pour en définir une nouvelle."
 
 RESET_ALL_MESSAGE = (
-    "🗑 *Configuration reset.*\n"
+    "🗑 *Configuration réinitialisée.*\n"
     "\n"
-    "All parameters have been cleared.\n"
-    "Use /setwallet and /setamount to start over."
+    "Tous les paramètres ont été effacés.\n"
+    "Utilise /setwallet et /setamount pour recommencer."
 )
 
-RESET_NOTHING_MESSAGE = "ℹ️ {param} is not configured — nothing to remove."
+RESET_NOTHING_MESSAGE = "ℹ️ {param} n'est pas configuré — rien à supprimer."
 
 RESET_CONFIRM_ASK_MESSAGE = (
-    "⚠️ *Full reset*\n"
+    "⚠️ *Reset complet*\n"
     "\n"
-    "This action will:\n"
-    "• Delete all your configuration\n"
-    "• Delete all your paper positions\n"
-    "• Reset all parameters to defaults\n"
-    "• Switch mode back to Paper Trading\n"
+    "Cette action va :\n"
+    "• Supprimer toute ta configuration\n"
+    "• Supprimer toutes tes positions paper\n"
+    "• Remettre tous les paramètres à zéro\n"
+    "• Repasser en mode Paper Trading\n"
     "\n"
-    "Type `yes` to confirm or /cancel to abort."
+    "Tape `yes` pour confirmer ou /cancel pour annuler."
 )
 
 RESET_DONE_MESSAGE = (
-    "🗑 *Full reset completed.*\n"
+    "🗑 *Reset complet effectué.*\n"
     "\n"
-    "All your parameters have been cleared.\n"
-    "Use /setwallet and /setamount to start over."
+    "Tous tes paramètres ont été effacés.\n"
+    "Utilise /setwallet et /setamount pour recommencer."
 )
 
-RESET_CANCELLED_MESSAGE = "✅ Reset cancelled. Your configuration is intact."
+RESET_CANCELLED_MESSAGE = "✅ Reset annulé. Ta configuration est intacte."

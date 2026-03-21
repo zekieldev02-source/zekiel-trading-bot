@@ -9,10 +9,10 @@ MAX_CLOSED_DISPLAY = 3
 
 
 NO_POSITIONS_MESSAGE = (
-    "📊 *Paper positions*\n"
+    "📊 *Positions paper*\n"
     "\n"
-    "You have no paper positions yet.\n"
-    "The bot will create them automatically when a signal is detected."
+    "Tu n'as pas encore de positions paper.\n"
+    "Le bot en créera automatiquement quand un signal sera détecté."
 )
 
 
@@ -40,47 +40,46 @@ def get_positions_message(data: dict) -> str:
     open_count: int = summary.get("open_count", 0)
     closed_count: int = summary.get("closed_count", 0)
 
-    lines = ["📊 *Paper positions*", ""]
+    lines = ["📊 *Positions paper*", ""]
 
-    lines.append(f"🟢 Open: {open_count}")
-    lines.append(f"🔴 Closed: {closed_count}")
+    lines.append(f"🟢 Ouvertes : {open_count}")
+    lines.append(f"🔴 Fermées : {closed_count}")
 
     if closed_count > 0:
         total_pnl = _to_decimal(summary.get("total_pnl_absolute", 0))
         avg_pnl = _to_decimal(summary.get("average_pnl_percent", 0))
         pnl_sign = "+" if total_pnl >= 0 else ""
         avg_sign = "+" if avg_pnl >= 0 else ""
-        lines.append(f"💰 Total PnL: {pnl_sign}{total_pnl:.4f} SOL")
-        lines.append(f"📈 Avg PnL: {avg_sign}{avg_pnl:.2f}%")
+        lines.append(f"💰 PnL total : {pnl_sign}{total_pnl:.4f} SOL")
+        lines.append(f"📈 PnL moyen : {avg_sign}{avg_pnl:.2f}%")
 
     lines.append("")
     if open_positions:
-        lines.append("*Open positions:*")
+        lines.append("*Positions ouvertes :*")
         for i, pos in enumerate(open_positions, start=1):
             symbol = _safe_md(pos.get("token_symbol") or pos.get("token_address", "?"))
             addr = pos.get("token_address") or ""
             lines.append("")
             lines.append(f"{i}. *{symbol}*")
             if addr:
-                lines.append(f"   Address: `{addr}`")
-            lines.append(f"   Entry: `{_fmt_price(pos.get('entry_price'))}` SOL")
-            lines.append(f"   Amount: `{_fmt_amount(pos.get('amount'))}` SOL")
+                lines.append(f"   Adresse : `{addr}`")
+            lines.append(f"   Entrée : `{_fmt_price(pos.get('entry_price'))}` SOL")
+            lines.append(f"   Montant : `{_fmt_amount(pos.get('amount'))}` SOL")
 
             tp = pos.get("take_profit_multiplier")
             if tp:
-                lines.append(f"   TP: x{_to_decimal(tp):.2f}")
+                lines.append(f"   TP : x{_to_decimal(tp):.2f}")
 
             mc = pos.get("entry_market_cap")
             if mc:
-                lines.append(f"   Entry MC: {_fmt_market_cap(_to_decimal(mc))}")
+                lines.append(f"   MC d'entrée : {_fmt_market_cap(_to_decimal(mc))}")
     else:
-        # There must be closed positions (handler guarantees at least one count > 0)
-        lines.append("_No open positions at the moment._")
+        lines.append("_Aucune position ouverte pour le moment._")
 
     if closed_positions:
         recent = closed_positions[:MAX_CLOSED_DISPLAY]
         lines.append("")
-        lines.append(f"*Last closed positions ({len(recent)}/{closed_count}):*")
+        lines.append(f"*Dernières positions fermées ({len(recent)}/{closed_count}) :*")
         for pos in recent:
             symbol = _safe_md(pos.get("token_symbol") or pos.get("token_address", "?"))
             reason = _safe_md(_fmt_close_reason(pos.get("close_reason")))
@@ -97,7 +96,7 @@ def get_positions_message(data: dict) -> str:
             lines.append(f"  • *{symbol}*{pnl_str} _{reason}_")
     elif open_positions:
         lines.append("")
-        lines.append("_No closed positions yet._")
+        lines.append("_Aucune position fermée pour le moment._")
 
     return "\n".join(lines)
 
@@ -114,13 +113,13 @@ def get_close_confirmation_message(position_data: dict) -> str:
     addr = str(position_data.get("token_address") or "")
     symbol = _safe_md(position_data.get("token_symbol") or _short_addr(addr) or "?")
     lines = [
-        "🔴 *Position closed*",
+        "🔴 *Position fermée*",
         "",
-        f"Token: *{symbol}*",
+        f"Token : *{symbol}*",
     ]
     if addr:
-        lines.append(f"Address: `{addr}`")
-    lines.append("Reason: manual close")
+        lines.append(f"Adresse : `{addr}`")
+    lines.append("Raison : fermeture manuelle")
 
     pnl_abs = position_data.get("pnl_absolute")
     pnl_pct = position_data.get("pnl_percent")
@@ -129,8 +128,8 @@ def get_close_confirmation_message(position_data: dict) -> str:
         pnl_d = _to_decimal(pnl_abs)
         pct_d = _to_decimal(pnl_pct)
         sign = "+" if pnl_d >= 0 else ""
-        lines.append(f"PnL: `{sign}{pct_d:.2f}%`")
-        lines.append(f"Result: `{sign}{pnl_d:.4f} SOL`")
+        lines.append(f"PnL : `{sign}{pct_d:.2f}%`")
+        lines.append(f"Résultat : `{sign}{pnl_d:.4f} SOL`")
 
     return "\n".join(lines)
 
@@ -195,10 +194,10 @@ def _fmt_market_cap(value: Decimal) -> str:
 
 def _fmt_close_reason(reason: str | None) -> str:
     mapping = {
-        "tp_hit": "TP hit",
-        "exit_mc_hit": "exit MC reached",
-        "manual_close": "manual close",
-        "bot_stop": "bot stopped",
-        "cancelled": "cancelled",
+        "tp_hit": "TP atteint",
+        "exit_mc_hit": "MC de sortie atteinte",
+        "manual_close": "fermeture manuelle",
+        "bot_stop": "bot arrêté",
+        "cancelled": "annulé",
     }
-    return mapping.get(reason or "", reason or "closed")
+    return mapping.get(reason or "", reason or "fermé")

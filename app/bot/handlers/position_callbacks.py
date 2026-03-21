@@ -17,8 +17,8 @@ from app.services.telegram import position_service
 _logger = logging.getLogger(__name__)
 
 _ERROR_MESSAGES: dict[str, str] = {
-    "already_closed": "⚠️ This position is already closed.",
-    "not_found": "⚠️ Position not found.",
+    "already_closed": "⚠️ Cette position est déjà fermée.",
+    "not_found": "⚠️ Position introuvable.",
 }
 
 
@@ -38,7 +38,7 @@ async def close_position_callback(update: Update, context: ContextTypes.DEFAULT_
 
     position_id = parse_close_callback(query.data or "")
     if position_id is None:
-        await query.answer("⚠️ Invalid action.", show_alert=True)
+        await query.answer("⚠️ Action invalide.", show_alert=True)
         return
 
     telegram_id = update.effective_user.id
@@ -46,13 +46,13 @@ async def close_position_callback(update: Update, context: ContextTypes.DEFAULT_
 
     if isinstance(result, str):
         await query.answer(
-            _ERROR_MESSAGES.get(result, "⚠️ Unable to close this position."),
+            _ERROR_MESSAGES.get(result, "⚠️ Impossible de fermer cette position."),
             show_alert=True,
         )
         return
 
     if result is None:
-        await query.answer("⚠️ Backend unavailable.", show_alert=True)
+        await query.answer("⚠️ Service indisponible.", show_alert=True)
         return
 
     await query.answer()

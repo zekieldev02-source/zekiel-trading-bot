@@ -19,7 +19,7 @@ from app.bot.messages.menu_messages import (
 from app.bot.messages.position_messages import NO_POSITIONS_MESSAGE, get_positions_message
 from app.services.telegram import position_service, status_service
 
-_BACKEND_ERROR = "⚠️ Backend unavailable. Try again in a moment."
+_BACKEND_ERROR = "⚠️ Service indisponible. Réessaie dans un instant."
 
 
 async def handle_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

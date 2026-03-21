@@ -4,121 +4,121 @@ from app.schemas.user_config import UserConfig
 
 
 START_MESSAGE = (
-    "🚀 *Welcome to Zekiel Bot!*\n"
+    "🚀 *Bienvenue sur Zekiel Bot !*\n"
     "\n"
-    "Your copy trading assistant on Solana.\n"
+    "Ton assistant de copy trading sur Solana.\n"
     "\n"
-    "To get started:\n"
-    "1️⃣ Set a wallet to track → /setwallet\n"
-    "2️⃣ Set your trade amount → /setamount\n"
-    "3️⃣ Start copy trading → /startbot\n"
+    "Pour commencer :\n"
+    "1️⃣ Configure un wallet à suivre → /setwallet\n"
+    "2️⃣ Définis ton montant par trade → /setamount\n"
+    "3️⃣ Lance le copy trading → /startbot\n"
     "\n"
-    "Type /help to see all commands."
+    "Tape /help pour voir toutes les commandes."
 )
 
 HELP_MESSAGE = (
-    "📖 *Available commands*\n"
+    "📖 *Commandes disponibles*\n"
     "\n"
-    "*Configuration:*\n"
-    "/setwallet — Set the wallet to track\n"
-    "/setamount — Set the trade amount (SOL)\n"
-    "/settp — Set the take-profit multiplier\n"
-    "/setentrymc — Set the max entry market cap\n"
-    "/setexitmc — Set the target exit market cap\n"
-    "/mode — Choose mode (paper / live)\n"
+    "*Configuration :*\n"
+    "/setwallet — Définir le wallet à suivre\n"
+    "/setamount — Définir le montant par trade (SOL)\n"
+    "/settp — Définir le multiplicateur de take-profit\n"
+    "/setentrymc — Définir la market cap d'entrée max\n"
+    "/setexitmc — Définir la market cap de sortie cible\n"
+    "/mode — Choisir le mode (paper / live)\n"
     "\n"
-    "*Reset:*\n"
-    "/resetwallet — Remove the wallet\n"
-    "/resetamount — Remove the trade amount\n"
-    "/resettp — Remove the take-profit\n"
-    "/resetentrymc — Remove the entry MC\n"
-    "/resetexitmc — Remove the exit MC\n"
-    "/resetall — Reset configuration\n"
-    "/reset — Full reset (config + positions)\n"
+    "*Réinitialisation :*\n"
+    "/resetwallet — Supprimer le wallet\n"
+    "/resetamount — Supprimer le montant\n"
+    "/resettp — Supprimer le take-profit\n"
+    "/resetentrymc — Supprimer la MC d'entrée\n"
+    "/resetexitmc — Supprimer la MC de sortie\n"
+    "/resetall — Réinitialiser la configuration\n"
+    "/reset — Reset complet (config + positions)\n"
     "\n"
-    "*Control:*\n"
-    "/startbot — Enable copy trading\n"
-    "/stopbot — Disable copy trading\n"
+    "*Contrôle :*\n"
+    "/startbot — Activer le copy trading\n"
+    "/stopbot — Désactiver le copy trading\n"
     "\n"
-    "*Information:*\n"
-    "/settings — View your configuration\n"
-    "/status — Bot status\n"
-    "/positions — View your paper positions\n"
-    "/help — Show this help"
+    "*Informations :*\n"
+    "/settings — Voir ta configuration\n"
+    "/status — Statut du bot\n"
+    "/positions — Voir tes positions paper\n"
+    "/help — Afficher cette aide"
 )
 
 BOT_STARTED_MESSAGE = (
-    "🟢 *Copy trading enabled!*\n"
+    "🟢 *Copy trading activé !*\n"
     "\n"
-    "The bot is now monitoring the configured wallet.\n"
-    "Use /stopbot to disable."
+    "Le bot surveille maintenant le wallet configuré.\n"
+    "Utilise /stopbot pour désactiver."
 )
 
 BOT_STOPPED_MESSAGE = (
-    "🔴 *Copy trading disabled.*\n"
+    "🔴 *Copy trading désactivé.*\n"
     "\n"
-    "The bot will no longer copy trades.\n"
-    "Use /startbot to re-enable."
+    "Le bot ne copie plus les trades.\n"
+    "Utilise /startbot pour réactiver."
 )
 
-BOT_ALREADY_ACTIVE_MESSAGE = "ℹ️ Copy trading is already active."
+BOT_ALREADY_ACTIVE_MESSAGE = "ℹ️ Le copy trading est déjà actif."
 
-BOT_ALREADY_STOPPED_MESSAGE = "ℹ️ Copy trading is already stopped."
+BOT_ALREADY_STOPPED_MESSAGE = "ℹ️ Le copy trading est déjà arrêté."
 
 
 def get_status_message(config: UserConfig) -> str:
     """Build a formatted status summary from the user's config."""
-    wallet = config.wallet_address or "Not configured"
-    amount = f"{config.trade_amount} SOL" if config.trade_amount else "Not configured"
-    tp = f"x{config.tp_multiplier}" if config.tp_multiplier else "Not configured"
+    wallet = config.wallet_address or "Non configuré"
+    amount = f"{config.trade_amount} SOL" if config.trade_amount else "Non configuré"
+    tp = f"x{config.tp_multiplier}" if config.tp_multiplier else "Non configuré"
     entry_mc = _format_market_cap(config.entry_market_cap)
     exit_mc = _format_market_cap(config.exit_market_cap)
-    bot_state = "🟢 Active" if config.bot_active else "⏸ Inactive"
+    bot_state = "🟢 Actif" if config.bot_active else "⏸ Inactif"
     mode = config.mode.display
     positions_count = len([p for p in config.positions if p.get("status") == "open"])
 
     return (
-        "📊 *Bot Status*\n"
+        "📊 *Statut du bot*\n"
         "\n"
-        f"*Status:* {bot_state}\n"
-        f"*Mode:* {mode}\n"
-        f"*Open positions:* {positions_count}\n"
+        f"*Statut :* {bot_state}\n"
+        f"*Mode :* {mode}\n"
+        f"*Positions ouvertes :* {positions_count}\n"
         "\n"
-        f"*Tracked wallet:* `{wallet}`\n"
-        f"*Trade amount:* {amount}\n"
-        f"*Take-profit:* {tp}\n"
-        f"*Max entry MC:* {entry_mc}\n"
-        f"*Target exit MC:* {exit_mc}\n"
+        f"*Wallet suivi :* `{wallet}`\n"
+        f"*Montant par trade :* {amount}\n"
+        f"*Take-profit :* {tp}\n"
+        f"*MC d'entrée max :* {entry_mc}\n"
+        f"*MC de sortie cible :* {exit_mc}\n"
     )
 
 
 def get_settings_message(config: UserConfig) -> str:
     """Build a formatted settings summary."""
-    wallet = f"`{config.wallet_address}`" if config.wallet_address else "❌ Not configured"
-    amount = f"{config.trade_amount} SOL" if config.trade_amount else "❌ Not configured"
-    tp = f"x{config.tp_multiplier}" if config.tp_multiplier else "➖ Not configured"
+    wallet = f"`{config.wallet_address}`" if config.wallet_address else "❌ Non configuré"
+    amount = f"{config.trade_amount} SOL" if config.trade_amount else "❌ Non configuré"
+    tp = f"x{config.tp_multiplier}" if config.tp_multiplier else "➖ Non configuré"
     entry_mc = _format_mc(config.entry_market_cap)
     exit_mc = _format_mc(config.exit_market_cap)
-    bot_state = "🟢 Active" if config.bot_active else "🔴 Inactive"
+    bot_state = "🟢 Actif" if config.bot_active else "🔴 Inactif"
     mode = config.mode.display
 
     return (
-        "⚙️ *Your configuration*\n"
+        "⚙️ *Ta configuration*\n"
         "\n"
-        f"*Mode:* {mode}\n"
-        f"*Tracked wallet:* {wallet}\n"
-        f"*Trade amount:* {amount}\n"
-        f"*Take-profit:* {tp}\n"
-        f"*Max entry MC:* {entry_mc}\n"
-        f"*Target exit MC:* {exit_mc}\n"
+        f"*Mode :* {mode}\n"
+        f"*Wallet suivi :* {wallet}\n"
+        f"*Montant par trade :* {amount}\n"
+        f"*Take-profit :* {tp}\n"
+        f"*MC d'entrée max :* {entry_mc}\n"
+        f"*MC de sortie cible :* {exit_mc}\n"
         "\n"
-        f"*Copy trading:* {bot_state}"
+        f"*Copy trading :* {bot_state}"
     )
 
 
 def _format_market_cap(value: float | None) -> str:
     if value is None:
-        return "Not configured"
+        return "Non configuré"
     if value >= 1_000_000:
         return f"${value / 1_000_000:.1f}M"
     if value >= 1_000:
@@ -128,7 +128,7 @@ def _format_market_cap(value: float | None) -> str:
 
 def _format_mc(value: float | None) -> str:
     if value is None:
-        return "➖ Not configured"
+        return "➖ Non configuré"
     if value >= 1_000_000:
         return f"${value / 1_000_000:.1f}M"
     if value >= 1_000:

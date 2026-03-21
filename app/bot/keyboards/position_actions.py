@@ -42,7 +42,7 @@ def build_positions_keyboard(open_positions: list[dict]) -> InlineKeyboardMarkup
         symbol = pos.get("token_symbol") or f"{str(pos.get('token_address', '?'))[:8]}..."
         buttons.append([
             InlineKeyboardButton(
-                text=f"🔴 Close {symbol}",
+                text=f"🔴 Fermer {symbol}",
                 callback_data=make_close_callback(uuid.UUID(str(raw_id))),
             )
         ])

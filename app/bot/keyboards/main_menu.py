@@ -14,9 +14,9 @@ from app.bot.callbacks.menu_callbacks import (
 def build_main_menu(bot_active: bool) -> InlineKeyboardMarkup:
     """Shows Start Bot or Stop Bot depending on the current bot state."""
     if bot_active:
-        control_button = InlineKeyboardButton("🔴 Stop Bot", callback_data=STOP_BOT_CONFIRM)
+        control_button = InlineKeyboardButton("🔴 Arrêter le bot", callback_data=STOP_BOT_CONFIRM)
     else:
-        control_button = InlineKeyboardButton("🟢 Start Bot", callback_data=START_BOT_CONFIRM)
+        control_button = InlineKeyboardButton("🟢 Démarrer le bot", callback_data=START_BOT_CONFIRM)
 
     return InlineKeyboardMarkup([
         [
@@ -25,6 +25,6 @@ def build_main_menu(bot_active: bool) -> InlineKeyboardMarkup:
         ],
         [control_button],
         [
-            InlineKeyboardButton("🔄 Refresh", callback_data=MAIN),
+            InlineKeyboardButton("🔄 Actualiser", callback_data=MAIN),
         ],
     ])

@@ -16,38 +16,38 @@ async def handle_copy_trade(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     data = query.data or ""
 
     if not data.startswith(_COPY_TRADE_PREFIX):
-        await query.answer("⚠️ Invalid callback.", show_alert=True)
+        await query.answer("⚠️ Callback invalide.", show_alert=True)
         return
 
     signal_id = data[len(_COPY_TRADE_PREFIX):]
     if not signal_id:
-        await query.answer("⚠️ Missing signal.", show_alert=True)
+        await query.answer("⚠️ Signal manquant.", show_alert=True)
         return
 
     result = await trade_service.execute_copy_trade(telegram_id, signal_id)
 
     if result == "already_open":
         await query.answer(
-            "⚠️ A position is already open for this token.",
+            "⚠️ Une position est déjà ouverte pour ce token.",
             show_alert=True,
         )
         return
 
     if result in ("signal_not_found", "expired"):
         await query.answer(
-            "⚠️ This signal has expired or has already been used.",
+            "⚠️ Ce signal a expiré ou a déjà été utilisé.",
             show_alert=True,
         )
         return
 
     if result is None:
         await query.answer(
-            "⚠️ Backend unavailable. Try again in a moment.",
+            "⚠️ Service indisponible. Réessaie dans un instant.",
             show_alert=True,
         )
         return
 
-    await query.answer("✅ Copy trade executed!", show_alert=False)
+    await query.answer("✅ Copy trade exécuté !", show_alert=False)
     try:
         await query.edit_message_reply_markup(reply_markup=None)
     except TelegramError:
@@ -57,7 +57,7 @@ async def handle_copy_trade(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 async def handle_view_positions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer(
-        "Use /positions to view your open positions.",
+        "Utilise /positions pour voir tes positions ouvertes.",
         show_alert=False,
     )
 

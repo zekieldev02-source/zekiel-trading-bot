@@ -1,115 +1,115 @@
 """Configuration flow messages: wallet, amount, take-profit, market caps, mode."""
 
 ASK_WALLET_MESSAGE = (
-    "🔗 *Wallet configuration*\n"
+    "🔗 *Configuration du wallet*\n"
     "\n"
-    "Send me the Solana wallet address you want to track.\n"
+    "Envoie-moi l'adresse du wallet Solana que tu veux suivre.\n"
     "\n"
-    "Type /cancel to abort."
+    "Tape /cancel pour annuler."
 )
 
 WALLET_CONFIRM_MESSAGE = (
-    "✅ *Wallet configured!*\n"
+    "✅ *Wallet configuré !*\n"
     "\n"
-    "Address: `{address}`\n"
+    "Adresse : `{address}`\n"
     "\n"
-    "The bot will monitor purchases from this wallet."
+    "Le bot surveillera les achats de ce wallet."
 )
 
 WALLET_UPDATED_MESSAGE = (
-    "🔄 *Wallet updated!*\n"
+    "🔄 *Wallet mis à jour !*\n"
     "\n"
-    "New address: `{address}`"
+    "Nouvelle adresse : `{address}`"
 )
 
 ASK_AMOUNT_MESSAGE = (
-    "💰 *Trade amount configuration*\n"
+    "💰 *Configuration du montant*\n"
     "\n"
-    "How many SOL do you want to commit per copied trade?\n"
+    "Combien de SOL veux-tu investir par trade copié ?\n"
     "\n"
-    "Type /cancel to abort."
+    "Tape /cancel pour annuler."
 )
 
 AMOUNT_CONFIRM_MESSAGE = (
-    "✅ *Amount configured!*\n"
+    "✅ *Montant configuré !*\n"
     "\n"
-    "Trade amount: *{amount} SOL* per trade."
+    "Montant par trade : *{amount} SOL*"
 )
 
 ASK_TP_MESSAGE = (
-    "📈 *Take-profit configuration*\n"
+    "📈 *Configuration du take-profit*\n"
     "\n"
-    "What exit multiplier do you want?\n"
-    "Examples: `1.5`, `2`, `x3`, `x10`\n"
+    "Quel multiplicateur de sortie veux-tu ?\n"
+    "Exemples : `1.5`, `2`, `x3`, `x10`\n"
     "\n"
-    "Type /cancel to abort."
+    "Tape /cancel pour annuler."
 )
 
 TP_CONFIRM_MESSAGE = (
-    "✅ *Take-profit configured!*\n"
+    "✅ *Take-profit configuré !*\n"
     "\n"
-    "Multiplier: *x{multiplier}*\n"
-    "The bot will sell when the price reaches x{multiplier} of the entry price."
+    "Multiplicateur : *x{multiplier}*\n"
+    "Le bot vendra quand le prix atteindra x{multiplier} du prix d'entrée."
 )
 
 ASK_ENTRY_MC_MESSAGE = (
-    "🎯 *Max entry market cap*\n"
+    "🎯 *MC d'entrée maximale*\n"
     "\n"
-    "What is the maximum market cap to accept a trade?\n"
-    "Examples: `500000`, `500k`, `1M`\n"
+    "Quelle est la market cap maximale pour accepter un trade ?\n"
+    "Exemples : `500000`, `500k`, `1M`\n"
     "\n"
-    "Type /cancel to abort."
+    "Tape /cancel pour annuler."
 )
 
 ENTRY_MC_CONFIRM_MESSAGE = (
-    "✅ *Entry market cap configured!*\n"
+    "✅ *MC d'entrée configurée !*\n"
     "\n"
-    "Max entry MC: *${value}*\n"
-    "Tokens with a higher MC will be ignored."
+    "MC d'entrée max : *${value}*\n"
+    "Les tokens avec une MC plus élevée seront ignorés."
 )
 
 ASK_EXIT_MC_MESSAGE = (
-    "🏁 *Target exit market cap*\n"
+    "🏁 *MC de sortie cible*\n"
     "\n"
-    "At what market cap should the bot sell?\n"
-    "Examples: `5000000`, `5M`, `10M`\n"
+    "À quelle market cap le bot doit-il vendre ?\n"
+    "Exemples : `5000000`, `5M`, `10M`\n"
     "\n"
-    "Type /cancel to abort."
+    "Tape /cancel pour annuler."
 )
 
 EXIT_MC_CONFIRM_MESSAGE = (
-    "✅ *Exit market cap configured!*\n"
+    "✅ *MC de sortie configurée !*\n"
     "\n"
-    "Target exit MC: *${value}*\n"
-    "The bot will sell when the token reaches this market cap."
+    "MC de sortie cible : *${value}*\n"
+    "Le bot vendra quand le token atteindra cette market cap."
 )
 
 MODE_SET_PAPER_MESSAGE = (
-    "📝 *Paper Trading mode enabled!*\n"
+    "📝 *Mode Paper Trading activé !*\n"
     "\n"
-    "Trades will be simulated.\n"
-    "No real transactions will be executed."
+    "Les trades seront simulés.\n"
+    "Aucune transaction réelle ne sera exécutée."
 )
 
 MODE_SET_LIVE_MESSAGE = (
-    "💰 *Live Trading mode enabled!*\n"
+    "💰 *Mode Live Trading activé !*\n"
     "\n"
-    "⚠️ Trades will be real.\n"
-    "Copy trading has been disabled as a precaution.\n"
-    "Use /startbot to re-enable it."
+    "⚠️ Les trades seront réels.\n"
+    "Le copy trading a été désactivé par précaution.\n"
+    "Utilise /startbot pour le réactiver."
 )
 
-MODE_ALREADY_MESSAGE = "ℹ️ You are already in *{mode}* mode."
+MODE_ALREADY_MESSAGE = "ℹ️ Tu es déjà en mode *{mode}*."
 
 MODE_INVALID_MESSAGE = (
-    "⚠️ Invalid mode.\n"
-    "Usage: `/mode paper` or `/mode live`"
+    "⚠️ Mode invalide.\n"
+    "Usage : `/mode paper` ou `/mode live`"
 )
 
 MODE_USAGE_MESSAGE = (
-    "⚙️ *Trading mode*\n"
+    "⚙️ *Mode de trading*\n"
     "\n"
-    "Current mode: *{current_mode}*\n"
+    "Mode actuel : *{current_mode}*\n"
     "\n"
-    "Usage: `/mode paper` or `/mode live`"
+    "Usage : `/mode paper` ou `/mode live`"
 )
