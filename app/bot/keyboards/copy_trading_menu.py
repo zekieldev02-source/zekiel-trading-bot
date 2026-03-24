@@ -12,13 +12,13 @@ def build_copy_trading_menu() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("✏️ Wallet", callback_data="menu:ct:wallet"),
-            InlineKeyboardButton("💰 Montant", callback_data="menu:ct:amount"),
+            InlineKeyboardButton("💰 Amount", callback_data="menu:ct:amount"),
         ],
         [
             InlineKeyboardButton("📊 Take-profit", callback_data="menu:ct:tp"),
             InlineKeyboardButton("📉 Market Cap", callback_data="menu:ct:mc"),
         ],
         [
-            InlineKeyboardButton("⬅️ Retour", callback_data=MAIN),
+            InlineKeyboardButton("⬅️ Back", callback_data=MAIN),
         ],
     ])

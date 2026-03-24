@@ -1,5 +1,3 @@
-# Source of truth: backend (app/core/enums/trading_mode.py).
-# This local copy is used for display only (Telegram UI labels).
 from enum import Enum
 
 

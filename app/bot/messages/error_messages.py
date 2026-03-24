@@ -1,17 +1,17 @@
 """Centralized error messages."""
 
-CANCEL_MESSAGE = "❌ Opération annulée."
+CANCEL_MESSAGE = "❌ Operation cancelled."
 
-INVALID_INPUT_MESSAGE = "⚠️ Entrée invalide. Réessaie."
+INVALID_INPUT_MESSAGE = "⚠️ Invalid input. Please try again."
 
 NOT_CONFIGURED_MESSAGE = (
-    "⚠️ Ta configuration est incomplète.\n"
-    "Utilise /setwallet et /setamount pour commencer."
+    "⚠️ Your configuration is incomplete.\n"
+    "Use /setwallet and /setamount to get started."
 )
 
-UNEXPECTED_ERROR_MESSAGE = "⚠️ Une erreur inattendue est survenue. Réessaie plus tard."
+UNEXPECTED_ERROR_MESSAGE = "⚠️ An unexpected error occurred. Please try again later."
 
 BACKEND_UNAVAILABLE_MESSAGE = (
-    "⚠️ Le service est temporairement indisponible.\n"
-    "Réessaie dans quelques instants."
+    "⚠️ Service temporarily unavailable.\n"
+    "Please try again in a moment."
 )

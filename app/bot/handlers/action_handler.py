@@ -23,28 +23,28 @@ from app.bot.messages.menu_messages import get_main_menu_message
 from app.services.telegram import config_service, status_service
 
 _CONFIRM_TEXTS: dict[str, str] = {
-    START_BOT_CONFIRM: "⚠️ *Activer le copy trading ?*\n\nLe bot va commencer à surveiller le wallet configuré.",
-    STOP_BOT_CONFIRM: "⚠️ *Désactiver le copy trading ?*\n\nLe bot arrêtera de surveiller le wallet.",
-    RESET_CONFIRM: "⚠️ *Réinitialiser toute la configuration ?*\n\nCette action est irréversible.",
+    START_BOT_CONFIRM: "⚠️ *Enable copy trading?*\n\nThe bot will start monitoring the configured wallet.",
+    STOP_BOT_CONFIRM: "⚠️ *Disable copy trading?*\n\nThe bot will stop monitoring the wallet.",
+    RESET_CONFIRM: "⚠️ *Reset all configuration?*\n\nThis action is irreversible.",
 }
 
 _START_BOT_RESULTS: dict[str, str] = {
-    "success": "🟢 *Copy trading activé !*\n\nLe bot surveille maintenant le wallet configuré.",
-    "already_active": "ℹ️ Le copy trading est déjà actif.",
-    "missing_wallet": "❌ Configure d'abord un wallet avec /setwallet",
-    "missing_amount": "❌ Configure d'abord un montant avec /setamount",
-    "backend_error": "⚠️ Service indisponible. Réessaie dans un instant.",
+    "success": "🟢 *Copy trading enabled!*\n\nThe bot is now monitoring the configured wallet.",
+    "already_active": "ℹ️ Copy trading is already active.",
+    "missing_wallet": "❌ Please set a wallet first with /setwallet",
+    "missing_amount": "❌ Please set an amount first with /setamount",
+    "backend_error": "⚠️ Service unavailable. Please try again in a moment.",
 }
 
 _STOP_BOT_RESULTS: dict[str, str] = {
-    "success": "🔴 *Copy trading désactivé.*\n\nUtilise Démarrer le bot pour réactiver.",
-    "already_inactive": "ℹ️ Le copy trading est déjà arrêté.",
-    "backend_error": "⚠️ Service indisponible. Réessaie dans un instant.",
+    "success": "🔴 *Copy trading disabled.*\n\nUse Start bot to re-enable.",
+    "already_inactive": "ℹ️ Copy trading is already stopped.",
+    "backend_error": "⚠️ Service unavailable. Please try again in a moment.",
 }
 
 _RESET_RESULTS: dict[str, str] = {
-    "success": "✅ *Configuration réinitialisée.*",
-    "backend_error": "⚠️ Service indisponible. Réessaie dans un instant.",
+    "success": "✅ *Configuration reset.*",
+    "backend_error": "⚠️ Service unavailable. Please try again in a moment.",
 }
 
 
@@ -84,19 +84,19 @@ async def _show_confirmation(query, data: str) -> None:
 
 async def _execute_start_bot(query, telegram_id: int) -> None:
     result = await config_service.activate_bot(telegram_id)
-    text = _START_BOT_RESULTS.get(result, "⚠️ Erreur inattendue.")
+    text = _START_BOT_RESULTS.get(result, "⚠️ Unexpected error.")
     await _show_result_and_return(query, telegram_id, text)
 
 
 async def _execute_stop_bot(query, telegram_id: int) -> None:
     result = await config_service.deactivate_bot(telegram_id)
-    text = _STOP_BOT_RESULTS.get(result, "⚠️ Erreur inattendue.")
+    text = _STOP_BOT_RESULTS.get(result, "⚠️ Unexpected error.")
     await _show_result_and_return(query, telegram_id, text)
 
 
 async def _execute_reset(query, telegram_id: int) -> None:
     result = await config_service.reset_all_fields(telegram_id)
-    text = _RESET_RESULTS.get(result, "⚠️ Erreur inattendue.")
+    text = _RESET_RESULTS.get(result, "⚠️ Unexpected error.")
     await _show_result_and_return(query, telegram_id, text)
 
 
@@ -119,7 +119,7 @@ async def _back_to_main(query, telegram_id: int) -> None:
     """Cancellation — returns to main menu without executing the action."""
     config = await status_service.get_status(telegram_id)
     if config is None:
-        await query.edit_message_text("⚠️ Service indisponible.")
+        await query.edit_message_text("⚠️ Service unavailable.")
         return
 
     await query.edit_message_text(
