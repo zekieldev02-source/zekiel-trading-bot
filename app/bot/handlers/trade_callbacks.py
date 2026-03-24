@@ -2,7 +2,9 @@ from telegram import Update
 from telegram.error import TelegramError
 from telegram.ext import CallbackQueryHandler, ContextTypes
 
-from app.services.telegram import trade_service
+from app.bot.keyboards.position_actions import build_positions_keyboard
+from app.bot.messages.position_messages import NO_POSITIONS_MESSAGE, get_positions_message
+from app.services.telegram import position_service, trade_service
 
 _COPY_TRADE_PREFIX = "ct:"
 _VIEW_POSITIONS = "vp"
@@ -56,10 +58,25 @@ async def handle_copy_trade(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def handle_view_positions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    await query.answer(
-        "Utilise /positions pour voir tes positions ouvertes.",
-        show_alert=False,
-    )
+    await query.answer()
+
+    telegram_id = query.from_user.id
+    data = await position_service.get_positions_summary(telegram_id)
+
+    if data is None:
+        await query.message.reply_text("⚠️ Service unavailable. Please try again in a moment.")
+        return
+
+    summary = data.get("summary", {})
+    has_positions = summary.get("open_count", 0) > 0 or summary.get("closed_count", 0) > 0
+
+    if not has_positions:
+        await query.message.reply_text(NO_POSITIONS_MESSAGE, parse_mode="Markdown")
+        return
+
+    open_positions = data.get("open_positions", [])
+    keyboard = build_positions_keyboard(open_positions)
+    await query.message.reply_text(get_positions_message(data), parse_mode="Markdown", reply_markup=keyboard)
 
 
 copy_trade_callback_handler = CallbackQueryHandler(

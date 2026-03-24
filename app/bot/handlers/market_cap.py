@@ -21,10 +21,6 @@ from app.services.telegram import config_service
 from app.services.validators.input_validator import validate_market_cap
 
 
-# ------------------------------------------------------------------ #
-#  /setentrymc
-# ------------------------------------------------------------------ #
-
 async def setentrymc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: ask for the maximum entry market cap."""
     await update.message.reply_text(ASK_ENTRY_MC_MESSAGE, parse_mode="Markdown")
@@ -51,10 +47,6 @@ async def setentrymc_receive(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await update.message.reply_text(message, parse_mode="Markdown")
     return ConversationHandler.END
 
-
-# ------------------------------------------------------------------ #
-#  /setexitmc
-# ------------------------------------------------------------------ #
 
 async def setexitmc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Entry point: ask for the target exit market cap."""
@@ -83,10 +75,6 @@ async def setexitmc_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     return ConversationHandler.END
 
 
-# ------------------------------------------------------------------ #
-#  Shared
-# ------------------------------------------------------------------ #
-
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the conversation."""
     await update.message.reply_text(CANCEL_MESSAGE)
@@ -100,10 +88,6 @@ def _format_mc(value: float) -> str:
         return f"{value / 1_000:.0f}K"
     return f"{value:,.0f}"
 
-
-# ------------------------------------------------------------------ #
-#  Exported handlers
-# ------------------------------------------------------------------ #
 
 setentrymc_handler = ConversationHandler(
     entry_points=[CommandHandler("setentrymc", setentrymc_start)],

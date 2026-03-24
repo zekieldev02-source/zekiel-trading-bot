@@ -36,7 +36,6 @@ async def setwallet_receive(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         await update.message.reply_text(f"⚠️ {error}\n\nTry again or type /cancel.")
         return ConversationState.ASK_VALUE
 
-    # Fetch old wallet to adapt the confirmation message
     current_config = await config_service.get_config(telegram_id)
     old_wallet = current_config.wallet_address if current_config else None
 

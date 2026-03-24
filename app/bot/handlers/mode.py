@@ -30,7 +30,6 @@ async def mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     current_mode = config.mode
 
-    # No argument → show current mode + usage
     if not context.args:
         await update.message.reply_text(
             MODE_USAGE_MESSAGE.format(current_mode=current_mode.display),
@@ -53,7 +52,6 @@ async def mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         return
 
-    # Changing mode deactivates the bot (business rule)
     updated = await config_service.update_mode(telegram_id, new_mode)
     if updated is None:
         await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
