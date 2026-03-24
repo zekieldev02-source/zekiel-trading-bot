@@ -3,9 +3,11 @@ import re
 from app.core.constants import (
     MAX_ENTRY_MARKET_CAP,
     MAX_EXIT_MARKET_CAP,
+    MAX_STOP_LOSS,
     MAX_TP_MULTIPLIER,
     MAX_TRADE_AMOUNT,
     MIN_MARKET_CAP,
+    MIN_STOP_LOSS,
     MIN_TP_MULTIPLIER,
     MIN_TRADE_AMOUNT,
     SOLANA_ADDRESS_MAX_LENGTH,
@@ -55,6 +57,23 @@ def validate_tp_multiplier(raw: str) -> tuple[bool, float | None, str]:
     if multiplier > MAX_TP_MULTIPLIER:
         return False, None, f"Maximum multiplier is {MAX_TP_MULTIPLIER}."
     return True, multiplier, ""
+
+
+def validate_stop_loss(raw: str) -> tuple[bool, float | None, str]:
+    cleaned = raw.strip().replace("%", "")
+    try:
+        value = float(cleaned)
+    except ValueError:
+        return False, None, "Please enter a valid percentage (e.g. 50, 25, 0.5)."
+
+    if value > 1:
+        value = value / 100.0
+
+    if value < MIN_STOP_LOSS:
+        return False, None, f"Minimum stop-loss is {MIN_STOP_LOSS * 100:.0f}%."
+    if value > MAX_STOP_LOSS:
+        return False, None, f"Maximum stop-loss is {MAX_STOP_LOSS * 100:.0f}%."
+    return True, value, ""
 
 
 def validate_market_cap(raw: str, is_entry: bool = True) -> tuple[bool, float | None, str]:

@@ -50,6 +50,10 @@ async def update_exit_market_cap(telegram_id: int, value: float) -> UserConfig |
     return await config_client.update_config(telegram_id, exit_market_cap=value)
 
 
+async def update_stop_loss(telegram_id: int, multiplier: float) -> UserConfig | None:
+    return await config_client.update_config(telegram_id, stop_loss_multiplier=multiplier)
+
+
 async def update_mode(telegram_id: int, mode: TradingMode) -> UserConfig | None:
     """Changes the trading mode (paper / live). Always deactivates the bot to prevent unintended trades."""
     return await config_client.update_config(
@@ -200,6 +204,16 @@ async def reset_entry_mc(telegram_id: int) -> str:
     return "success" if updated is not None else "backend_error"
 
 
+async def reset_stop_loss(telegram_id: int) -> str:
+    config = await config_client.get_config(telegram_id)
+    if config is None:
+        return "backend_error"
+    if not config.stop_loss_multiplier:
+        return "already_empty"
+    updated = await config_client.update_config(telegram_id, stop_loss_multiplier=None)
+    return "success" if updated is not None else "backend_error"
+
+
 async def reset_exit_mc(telegram_id: int) -> str:
     """Clears the exit market cap.
 
@@ -231,6 +245,7 @@ async def reset_all_fields(telegram_id: int) -> str:
         trading_wallet_public_key=None,
         trade_amount=None,
         tp_multiplier=None,
+        stop_loss_multiplier=None,
         entry_market_cap=None,
         exit_market_cap=None,
         bot_active=False,

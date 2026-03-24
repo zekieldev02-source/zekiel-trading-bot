@@ -18,6 +18,7 @@ from app.bot.messages.reset_messages import (
     RESET_ENTRY_MC_MESSAGE,
     RESET_EXIT_MC_MESSAGE,
     RESET_NOTHING_MESSAGE,
+    RESET_STOP_LOSS_MESSAGE,
     RESET_TP_MESSAGE,
     RESET_WALLET_BOT_STOPPED_MESSAGE,
     RESET_WALLET_MESSAGE,
@@ -62,6 +63,19 @@ async def reset_tp(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="take-profit"))
     elif result == "success":
         await update.message.reply_text(RESET_TP_MESSAGE, parse_mode="Markdown")
+    else:
+        await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
+
+
+async def reset_stop_loss(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Remove the stop-loss multiplier."""
+    telegram_id = update.effective_user.id
+    result = await config_service.reset_stop_loss(telegram_id)
+
+    if result == "already_empty":
+        await update.message.reply_text(RESET_NOTHING_MESSAGE.format(param="stop-loss"))
+    elif result == "success":
+        await update.message.reply_text(RESET_STOP_LOSS_MESSAGE, parse_mode="Markdown")
     else:
         await update.message.reply_text(BACKEND_UNAVAILABLE_MESSAGE)
 

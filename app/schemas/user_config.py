@@ -17,6 +17,7 @@ class UserConfig(BaseModel):
     trading_wallet_public_key: Optional[str] = None
     trade_amount: Optional[float] = None
     tp_multiplier: Optional[float] = None
+    stop_loss_multiplier: Optional[float] = None
     entry_market_cap: Optional[float] = None
     exit_market_cap: Optional[float] = None
     mode: TradingMode = TradingMode.PAPER
