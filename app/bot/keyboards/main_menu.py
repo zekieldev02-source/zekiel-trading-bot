@@ -6,6 +6,7 @@ from app.bot.callbacks.menu_callbacks import (
     COPY_TRADING,
     MAIN,
     POSITIONS,
+    SETTINGS,
     START_BOT_CONFIRM,
     STOP_BOT_CONFIRM,
 )
@@ -14,17 +15,21 @@ from app.bot.callbacks.menu_callbacks import (
 def build_main_menu(bot_active: bool) -> InlineKeyboardMarkup:
     """Shows Start Bot or Stop Bot depending on the current bot state."""
     if bot_active:
-        control_button = InlineKeyboardButton("🔴 Arrêter le bot", callback_data=STOP_BOT_CONFIRM)
+        control_button = InlineKeyboardButton("🔴 Stop bot", callback_data=STOP_BOT_CONFIRM)
     else:
-        control_button = InlineKeyboardButton("🟢 Démarrer le bot", callback_data=START_BOT_CONFIRM)
+        control_button = InlineKeyboardButton("🟢 Start bot", callback_data=START_BOT_CONFIRM)
 
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📈 Positions", callback_data=POSITIONS),
             InlineKeyboardButton("🔁 Copy Trading", callback_data=COPY_TRADING),
+
+        ],
+        [
+            InlineKeyboardButton("⚙️ Settings", callback_data=SETTINGS),
         ],
         [control_button],
         [
-            InlineKeyboardButton("🔄 Actualiser", callback_data=MAIN),
+            InlineKeyboardButton("🔄 Refresh", callback_data=MAIN),
         ],
     ])

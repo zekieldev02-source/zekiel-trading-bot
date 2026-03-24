@@ -7,6 +7,7 @@ Prefix "menu:" for navigation, "act:" for actions requiring confirmation.
 MAIN = "menu:main"
 COPY_TRADING = "menu:ct"
 POSITIONS = "menu:pos"
+SETTINGS = "menu:settings"
 
 START_BOT_CONFIRM = "act:sb"
 START_BOT_EXEC = "act:sb:ok"
