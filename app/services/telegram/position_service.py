@@ -4,11 +4,29 @@ import uuid
 
 from app.client.backend import position_client
 from app.client.backend import trading_client
+from app.client import dexscreener_client
 
 
 async def get_positions_summary(telegram_id: int) -> dict | None:
-    """Returns None if the backend is unavailable."""
-    return await position_client.get_positions_summary(telegram_id)
+    """Returns positions summary enriched with current market caps from DexScreener."""
+    data = await position_client.get_positions_summary(telegram_id)
+    if data is None:
+        return None
+
+    open_positions: list[dict] = data.get("open_positions", [])
+    if not open_positions:
+        return data
+
+    addresses = [p["token_address"] for p in open_positions if p.get("token_address")]
+    market_data = await dexscreener_client.get_tokens_market_data(addresses)
+
+    for position in open_positions:
+        addr = position.get("token_address", "")
+        token_data = market_data.get(addr)
+        if token_data and token_data.market_cap is not None:
+            position["current_market_cap"] = float(token_data.market_cap)
+
+    return data
 
 
 async def get_positions(telegram_id: int) -> list[dict] | None:
@@ -33,10 +51,8 @@ async def manual_close_position(
 ) -> dict | str | None:
     """Closes a position manually from a Telegram inline button.
 
-    Reads entry_price from the open-positions snapshot and calls the backend
-    with close_reason="manual_close". MVP: exit_price = entry_price (no
-    real-time price in paper trading); replace with Birdeye price once
-    zekiel-market-stream is live.
+    Fetches the current price from DexScreener and uses it as exit_price.
+    Falls back to entry_price if DexScreener is unavailable.
 
     Returns:
         dict: closed position data.
@@ -56,10 +72,15 @@ async def manual_close_position(
     if position is None:
         return "already_closed"
 
+    token_address: str = position.get("token_address", "")
     entry_price = float(position.get("entry_price", 0))
+
+    current_price = await dexscreener_client.get_token_price(token_address)
+    exit_price = float(current_price) if current_price else entry_price
+
     return await trading_client.close_position(
         position_id=position_id,
-        exit_price=entry_price,
+        exit_price=exit_price,
         close_reason="manual_close",
     )
 
