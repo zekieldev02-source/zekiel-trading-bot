@@ -53,9 +53,12 @@ def get_positions_message(data: dict) -> str:
             if tp:
                 lines.append(f"   TP: x{_to_decimal(tp):.2f}")
 
-            mc = pos.get("entry_market_cap")
-            if mc:
-                lines.append(f"   Entry MC: {_fmt_market_cap(_to_decimal(mc))}")
+            entry_mc = pos.get("entry_market_cap")
+            current_mc = pos.get("current_market_cap")
+            if entry_mc:
+                lines.append(f"   Entry MC: {_fmt_market_cap(_to_decimal(entry_mc))}")
+            if current_mc:
+                lines.append(f"   Current MC: {_fmt_market_cap(_to_decimal(current_mc))}")
     else:
         lines.append("_No open positions at the moment._")
 
