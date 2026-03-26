@@ -54,6 +54,11 @@ async def update_stop_loss(telegram_id: int, multiplier: float) -> UserConfig | 
     return await config_client.update_config(telegram_id, stop_loss_multiplier=multiplier)
 
 
+async def generate_wallet(telegram_id: int) -> dict | None:
+    """Generates a trading wallet for AUTO mode. Returns dict with public_key or None."""
+    return await config_client.generate_trading_wallet(telegram_id)
+
+
 async def update_mode(telegram_id: int, mode: TradingMode) -> UserConfig | None:
     """Changes the trading mode (paper / live). Always deactivates the bot to prevent unintended trades."""
     return await config_client.update_config(

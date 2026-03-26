@@ -100,25 +100,33 @@ EXIT_MC_CONFIRM_MESSAGE = (
 )
 
 MODE_SET_PAPER_MESSAGE = (
-    "📝 *Paper Trading mode enabled!*\n"
+    "📝 *Paper mode enabled*\n"
     "\n"
-    "Trades will be simulated.\n"
-    "No real transactions will be executed."
+    "Trades are simulated — no real transactions."
 )
 
-MODE_SET_LIVE_MESSAGE = (
-    "💰 *Live Trading mode enabled!*\n"
+MODE_SET_AUTO_MESSAGE = (
+    "🤖 *Auto mode enabled*\n"
     "\n"
-    "⚠️ Trades will be real.\n"
-    "Copy trading has been disabled as a precaution.\n"
-    "Use /startbot to re-enable it."
+    "⚠️ The bot will execute real trades automatically.\n"
+    "Make sure your trading wallet is funded.\n"
+    "Use /startbot to activate."
 )
+
+MODE_SET_MANUAL_MESSAGE = (
+    "🖐 *Manual mode enabled*\n"
+    "\n"
+    "You will receive alerts with a Jupiter link to execute trades yourself.\n"
+    "Use /startbot to activate."
+)
+
+MODE_SET_LIVE_MESSAGE = MODE_SET_AUTO_MESSAGE
 
 MODE_ALREADY_MESSAGE = "ℹ️ You are already in *{mode}* mode."
 
 MODE_INVALID_MESSAGE = (
     "⚠️ Invalid mode.\n"
-    "Usage: `/mode paper` or `/mode live`"
+    "Usage: `/mode paper`, `/mode auto` or `/mode manual`"
 )
 
 MODE_USAGE_MESSAGE = (
@@ -126,5 +134,34 @@ MODE_USAGE_MESSAGE = (
     "\n"
     "Current mode: *{current_mode}*\n"
     "\n"
-    "Usage: `/mode paper` or `/mode live`"
+    "• `/mode paper` — simulated trades\n"
+    "• `/mode auto` — bot executes trades automatically\n"
+    "• `/mode manual` — receive alerts, trade manually"
+)
+
+WALLET_GENERATE_SUCCESS_MESSAGE = (
+    "✅ *Trading wallet ready*\n"
+    "\n"
+    "Public key: `{public_key}`\n"
+    "\n"
+    "Send SOL to this address to fund your trading wallet.\n"
+    "Use `/depositinfo` to see it again."
+)
+
+WALLET_GENERATE_ERROR_MESSAGE = (
+    "⚠️ Failed to generate trading wallet. Please try again."
+)
+
+DEPOSIT_INFO_MESSAGE = (
+    "💳 *Trading wallet*\n"
+    "\n"
+    "Address: `{public_key}`\n"
+    "\n"
+    "Send SOL here to fund auto trades.\n"
+    "⚠️ Only send SOL — other tokens may be lost."
+)
+
+DEPOSIT_INFO_NO_WALLET_MESSAGE = (
+    "⚠️ No trading wallet yet.\n"
+    "Use /generatewallet to create one."
 )

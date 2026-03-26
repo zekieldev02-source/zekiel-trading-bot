@@ -61,6 +61,20 @@ async def update_wallet_address(
         return None, None
 
 
+async def generate_trading_wallet(telegram_id: int) -> dict | None:
+    """Generates (or retrieves existing) trading wallet for AUTO mode.
+
+    Returns dict with public_key, or None on error.
+    """
+    try:
+        resp = await http_client.post(f"/users/{telegram_id}/trading-wallet")
+        if resp.status_code in (200, 201):
+            return resp.json().get("data")
+        return None
+    except httpx.RequestError:
+        return None
+
+
 async def reset_user(telegram_id: int) -> bool:
     try:
         resp = await http_client.post(f"/users/{telegram_id}/reset")
