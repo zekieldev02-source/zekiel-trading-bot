@@ -10,3 +10,4 @@ class ConversationState(IntEnum):
 
     ASK_VALUE = auto()
     CONFIRM = auto()
+    ASK_PRIVATE_KEY = auto()

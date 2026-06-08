@@ -75,6 +75,34 @@ async def generate_trading_wallet(telegram_id: int) -> dict | None:
         return None
 
 
+async def import_trading_wallet(telegram_id: int, private_key: str) -> dict | None:
+    """Import an existing wallet by private key. Returns dict with public_key, or None on error."""
+    try:
+        resp = await http_client.post(
+            f"/users/{telegram_id}/trading-wallet/import",
+            json={"private_key": private_key},
+        )
+        if resp.status_code == 200:
+            return resp.json().get("data")
+        if resp.status_code == 400:
+            detail = resp.json().get("detail", "Invalid private key format.")
+            raise ValueError(detail)
+        return None
+    except httpx.RequestError:
+        return None
+
+
+async def export_trading_wallet(telegram_id: int) -> dict | None:
+    """Returns dict with public_key and private_key_bytes, or None on error."""
+    try:
+        resp = await http_client.get(f"/users/{telegram_id}/trading-wallet/export")
+        if resp.status_code == 200:
+            return resp.json().get("data")
+        return None
+    except httpx.RequestError:
+        return None
+
+
 async def reset_user(telegram_id: int) -> bool:
     try:
         resp = await http_client.post(f"/users/{telegram_id}/reset")
@@ -90,6 +118,7 @@ def _map_to_user_config(telegram_id: int, data: dict) -> UserConfig:
         trading_wallet_public_key=data.get("trading_wallet_public_key"),
         trade_amount=float(data["trade_amount"]) if data.get("trade_amount") else None,
         tp_multiplier=float(data["tp_multiplier"]) if data.get("tp_multiplier") else None,
+        stop_loss_multiplier=float(data["stop_loss_multiplier"]) if data.get("stop_loss_multiplier") else None,
         entry_market_cap=float(data["entry_market_cap"]) if data.get("entry_market_cap") else None,
         exit_market_cap=float(data["exit_market_cap"]) if data.get("exit_market_cap") else None,
         mode=TradingMode(data.get("mode", TradingMode.PAPER.value)),

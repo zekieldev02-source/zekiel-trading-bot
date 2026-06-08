@@ -2,7 +2,7 @@
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from app.bot.callbacks.menu_callbacks import MAIN
+from app.bot.callbacks.menu_callbacks import EXPORT_WALLET_CONFIRM, MAIN, MODE_MENU
 
 
 def build_settings_menu() -> InlineKeyboardMarkup:
@@ -30,6 +30,13 @@ def build_settings_menu() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton("📈 Exit MC", callback_data="menu:settings:exitmc"),
             InlineKeyboardButton("🗑 Reset exit MC", callback_data="menu:settings:reset:exitmc"),
+        ],
+        [
+            InlineKeyboardButton("🔀 Trading Mode", callback_data=MODE_MENU),
+        ],
+        [
+            InlineKeyboardButton("📥 Import my wallet", callback_data="menu:settings:importwallet"),
+            InlineKeyboardButton("🔑 Export wallet key", callback_data=EXPORT_WALLET_CONFIRM),
         ],
         [
             InlineKeyboardButton("⬅️ Back", callback_data=MAIN),

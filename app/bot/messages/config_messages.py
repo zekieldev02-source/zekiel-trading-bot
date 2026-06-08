@@ -1,23 +1,26 @@
 """Configuration flow messages: wallet, amount, take-profit, stop-loss, market caps, mode."""
 
 ASK_WALLET_MESSAGE = (
-    "🔗 *Wallet setup*\n"
+    "🔗 *Smart money wallet*\n"
     "\n"
-    "Send me the Solana wallet address you want to track.\n"
+    "Send me the Solana address of the wallet you want to copy.\n"
+    "This is someone else's wallet — *not your own.*\n"
+    "\n"
+    "The bot will detect every buy from this address and replicate it.\n"
     "\n"
     "Type /cancel to abort."
 )
 
 WALLET_CONFIRM_MESSAGE = (
-    "✅ *Wallet configured!*\n"
+    "✅ *Tracked wallet configured!*\n"
     "\n"
     "Address: `{address}`\n"
     "\n"
-    "The bot will now track buys from this wallet."
+    "The bot will now copy buys from this wallet."
 )
 
 WALLET_UPDATED_MESSAGE = (
-    "🔄 *Wallet updated!*\n"
+    "🔄 *Tracked wallet updated!*\n"
     "\n"
     "New address: `{address}`"
 )
@@ -150,6 +153,42 @@ WALLET_GENERATE_SUCCESS_MESSAGE = (
 
 WALLET_GENERATE_ERROR_MESSAGE = (
     "⚠️ Failed to generate trading wallet. Please try again."
+)
+
+ASK_IMPORT_WALLET_MESSAGE = (
+    "🔑 *Import your personal wallet*\n"
+    "\n"
+    "Send your private key — two formats accepted:\n"
+    "\n"
+    "• *Phantom* (base58 string):\n"
+    "  Settings → Security & Privacy → Export Private Key\n"
+    "  → Copy the string directly\n"
+    "\n"
+    "• *JSON byte array* (advanced):\n"
+    "  `[1, 2, 3, ..., 64]`\n"
+    "\n"
+    "⚠️ *Your message will be deleted immediately after processing.*\n"
+    "⚠️ Never share your private key with anyone else.\n"
+    "\n"
+    "Type /cancel to abort."
+)
+
+IMPORT_WALLET_SUCCESS_MESSAGE = (
+    "✅ *Wallet imported successfully!*\n"
+    "\n"
+    "Public key: `{public_key}`\n"
+    "\n"
+    "The bot will now trade using this wallet.\n"
+    "Make sure it has enough SOL for trades + fees."
+)
+
+IMPORT_WALLET_ERROR_MESSAGE = (
+    "⚠️ *Invalid private key*\n\n"
+    "{detail}\n\n"
+    "Accepted formats:\n"
+    "• Phantom base58 string (from Settings → Export Private Key)\n"
+    "• JSON array `[1,2,...,64]`\n\n"
+    "Try again or type /cancel."
 )
 
 DEPOSIT_INFO_MESSAGE = (

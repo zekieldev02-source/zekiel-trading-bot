@@ -4,6 +4,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from app.bot.callbacks.menu_callbacks import (
     COPY_TRADING,
+    HELP,
     MAIN,
     POSITIONS,
     SETTINGS,
@@ -31,5 +32,6 @@ def build_main_menu(bot_active: bool) -> InlineKeyboardMarkup:
         [control_button],
         [
             InlineKeyboardButton("🔄 Refresh", callback_data=MAIN),
+            InlineKeyboardButton("❓ Help", callback_data=HELP),
         ],
     ])

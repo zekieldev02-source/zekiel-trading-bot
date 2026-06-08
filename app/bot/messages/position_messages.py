@@ -79,7 +79,7 @@ def get_positions_message(data: dict) -> str:
                 sign = "+" if pnl_d >= 0 else ""
                 pnl_str = f" — {sign}{pnl_d:.4f} SOL ({sign}{pct_d:.2f}%)"
 
-            lines.append(f"  • *{symbol}*{pnl_str} _{reason}_")
+            lines.append(f"  • *{symbol}*{pnl_str} — {reason}")
     elif open_positions:
         lines.append("")
         lines.append("_No closed positions yet._")
@@ -164,5 +164,6 @@ def _fmt_close_reason(reason: str | None) -> str:
         "manual_close": "manual close",
         "bot_stop": "bot stopped",
         "cancelled": "cancelled",
+        "wallet_sold": "wallet sold",
     }
     return mapping.get(reason or "", reason or "closed")

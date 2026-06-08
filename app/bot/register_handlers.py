@@ -20,7 +20,7 @@ from app.bot.handlers.full_reset import full_reset_handler
 from app.bot.handlers.help import help_command
 from app.bot.handlers.market_cap import setentrymc_handler, setexitmc_handler
 from app.bot.handlers.mode import mode
-from app.bot.handlers.trading_wallet import generate_wallet, deposit_info
+from app.bot.handlers.trading_wallet import generate_wallet, deposit_info, import_wallet_handler
 from app.bot.handlers.reset import (
     reset_all,
     reset_amount,
@@ -59,6 +59,7 @@ def register_all_handlers(app: Application) -> None:
     app.add_handler(CommandHandler("mode", mode))
     app.add_handler(CommandHandler("generatewallet", generate_wallet))
     app.add_handler(CommandHandler("depositinfo", deposit_info))
+    app.add_handler(import_wallet_handler)
 
     app.add_handler(action_handler)
     app.add_handler(menu_handler)
